@@ -46,7 +46,7 @@ rescue => e
   puts 'That should be enough. If you still experience issues, "bundle install --redownload" to rebuild dependencies anew'
   exit
 end
-require "rumale"
+
 
 # noinspection RubyMismatchedArgumentType
 Dir.glob(File.join(__dir__, "sc2ai", "overrides", "**", "*.rb")).each do |file|
@@ -57,6 +57,7 @@ end
 #  so Blizzard under_scored some names. This throws errors when defining constants
 #  during packing/unpacking, because they dont start capitalized, so we silence temporarily.
 silence_warnings do
+  require "rumale"
   require_relative "sc2ai/protocol/sc2api_pb"
 end
 # noinspection RubyMismatchedArgumentType
