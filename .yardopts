@@ -5,7 +5,9 @@
 --exclude /yard/rubygems/
 --exclude lib/sc2ai/protocol/
 --hide-tag todo
+--embed-mixin=Sc2::Client::ConfigurableOptions
 --readme ./docs/README.md
+--asset ./docs/images:images
 -
 ./docs/*.md
 LICENSE.txt
