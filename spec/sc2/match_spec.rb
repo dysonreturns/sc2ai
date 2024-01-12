@@ -53,6 +53,8 @@ RSpec.describe Sc2::Match do
       allow_any_instance_of(Sc2::Ports).to receive(:port_config_auto)
       allow(match_valid).to receive(:connect_players)
       allow(match_valid).to receive(:autosave_replay)
+      allow(map_relative_path).to receive(:path).and_return("/dev/null")
+
       allow_any_instance_of(Sc2::Player).to receive(:create_game)
       allow_any_instance_of(Sc2::Player).to receive(:join_game)
       allow_any_instance_of(Sc2::Player).to receive(:add_listener)
