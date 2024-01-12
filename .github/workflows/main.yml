@@ -29,7 +29,6 @@ jobs:
         id: release
         with:
           config-file: "ci/.release-please-manifest.json"
-          manifest-file: "ci/release-please-config.json"
       - uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
