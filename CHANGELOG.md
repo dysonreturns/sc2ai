@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.0-pre](https://github.com/dysonreturns/sc2ai/compare/v0.0.0...v0.0.0-pre) (2024-01-12)
+
+
+### Miscellaneous Chores
+
+* release 0.0.0-pre ([072a32f](https://github.com/dysonreturns/sc2ai/commit/072a32f5ea154be83e812616b85a9fa0e95ea6f3))
+
 ## 0.0.0 (2024-01-12)
 
 
