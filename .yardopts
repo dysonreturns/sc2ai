@@ -1,0 +1,13 @@
+--protected
+--no-private
+--embed-mixin ClassMethods
+--exclude /server/templates/
+--exclude /yard/rubygems/
+--exclude lib/sc2ai/protocol/
+--hide-tag todo
+--readme ./docs/README.md
+-
+./docs/*.md
+LICENSE.txt
+
+
