@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift(File.expand_path("lib")) # TODO: REMOVE
+require "sc2ai"
+require "sc2ai/cli/cli"
+
+puts <<-LOGO
+                                                                                
+                                                                                
+                                                                                
+              ...',;:clooc;'.                      .':loocc:;,'..               
+           .,lxkkOOO0OOOOOOOkoc;'.            .':ldkOOOOOOOOOOOkkdc,            
+             .,:okOOOOOOOOOOOOOOOkdl,      ,ldkOOOOOOOOOOOOOOOko:'.             
+                 .;lkOOOOOOOOOOOOOO0o.    .d0OOOOOOOOOOOOOOxl,.                 
+                    .;dOOOOOOOOOOOO0o.    .d0OOOOOOOOOOOOo;.                    
+                      .cOOOOOOOOOOO0o.    .d0OOOOOOOOOOk:                       
+                       .x0OOOOOOOOO0o.    .d0OOOOOOOOO0d.                       
+          .............:OKKKKKKKKKKKx;.   .d0OOO0000000d' ..................    
+        .dKXNXXXXXXXXXXNWMWWMWMMMMWMNk;   .d00XNWWWWWWWNK00000000000000000Oo'   
+       .xMMMMMMMMMMMMMMMMMMMMMMMMMMWO'    .xXNMMMMMMMMMMMMMMMMMMMMMMMMMWKd,.    
+       .o0O000000000000KNNNNWWMMMWNKo.    ,KWNWNNWWWNWWN00000000OKNMWXx;.       
+                       ,x0O00KNWNKOOo.    .x0OOO00000O0d.        .:d:.          
+          .:ccllllllcl;;x0OOOO000OO0o. .,:xKNXXXXXNX0O0d.                       
+           :OWMMMMMMMMWK00OOOOOOOOO0o. cKNMMMMMMMMMN0O0o.        ...       ...  
+            .lKWMMMMMMMMWX0OOOOOOOO0o..kMMMMMMMMMMMN0O0o.     ,ok0KKd.    lKKK: 
+              .dNMMMMMMMMMWK0OOOOOOOo.'0MMMMMMMMMMMXOO0o.   .lkkx0WMNl   .xMMWo 
+                ,kNMMMMMMMMMNKOOOOO0o.,KMMMMMMMMMMMXOO0o.   oWWo .xWMK,  .xMMMo 
+                 .:0WMMMMMMMMWX0OOO0o.'0MMMMMMMMMMMN0O0o.  :XMXo;;;xWMx. .xMMWo 
+                   .oXMMMMMMMMMNKOO0o..dWWMMMMMMMMMWKO0o. .OMNOkkkl;kMNl .xMMWo 
+                     'xNMMMMMMMMWX00o. ,d0MMMMMMMMMMN00d. oWWo.     ,KMK,.xMMX; 
+                       :KWMMMMMMMMWXo.   :XMMMMMMMMMMNKd. ,:;.       '::. :KK:  
+         .:kkc.        .l0NMMMMMMMMM0;    :XMMMMMMMMMMWO'                  .'   
+       .c0WMMWX0kkkkkkkOKXNMMMMMMMMMMXc   .xXWMMMMMMMMMWKd:.                    
+     .lKWMMMMMMMMMMMMMMMMMMMMMMMMMMMMMO.  .d00XWMMMMMMMMMMWXOxolclc.            
+   'dXMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWK:   .dOOO0KXNWMMMMMMMMMMWN0d;             
+   ':::::::::::::::::::o0XKKKKKKKKKXk'    .d0OOOOO0KKXXKxoool:;..               
+                       .d0OOOOOOOOO0o.    .d0OOOOOOOOOOo.                       
+                        ;kOOOOOOOOO0o.    .d0OOOOOOOOOk,                        
+                         ;xOOOOOOOO0o.    .d0OOOOOOOOx,                         
+                          .lkOOOOOO0o.    .d0OOOOOOkc.                          
+                            .lkOOOO0o.    .d0OOOOkc.                            
+                              .:dOO0o.    .dOOOd:.                              
+                                .,lko.    .dkl,.                                
+                                   ..      ..                                   
+                                                                                
+                                                                                
+                                                                                                                      
+LOGO
+
+Sc2::Cli.start

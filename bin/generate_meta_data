@@ -1,0 +1,669 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Thanks Burny <3
+
+# Context:
+# This data holds the sc2 tech tree, generated from game data
+# https://github.com/BurnySc2/sc2-techtree/blob/develop/data/data.json
+# Since we're using techtree, which uses python id's we MUST honor the python naming scheme
+# https://github.com/BurnySc2/python-sc2/blob/5835f719277ef618481909b49e539a5a9c1f0e6c/sc2/generate_ids.py
+# Therefore the referencing of abilities, units and such MUST be a port from python. No two ways about it.
+
+# Parse
+require "pathname"
+require_relative "../lib/sc2ai/paths"
+require "json"
+# Print
+require "pp"
+# Lint
+require "rake"
+#require "bundler/gem_tasks"
+require "standard"
+require "standard/cli"
+require "standard/rake"
+
+puts "Expecting updated data/data.json and updated data/stableid.json these will be parsed."
+raise "missing data/data.json. execute ./bin/download_techtree to refresh" unless Pathname.new("data/data.json").exist?
+
+puts "Periodically check for updates and refresh data.json with ./bin/download_techtree"
+puts "Found data/data.json - OK"
+
+raise "missing data/stableid.json" unless Pathname.new("data/stableid.json").exist?
+
+puts "Found data/stableid.json - OK"
+
+module GenerateMetaData
+  class << self
+
+    # For a specific class, such as AbilityId, we want the string value of the ability from constant value when generating (readable)
+    # klass should include full namespace "Api::AbilityId"
+    def const_name(klass, value, fallback: false)
+      # First, loop constants
+      klass.constants.each do |const_name|
+        if value == klass.const_get(const_name)
+          return "#{klass}::#{const_name}"
+        end
+      end
+      # Then loop local singleton methods starting with _
+      # i.e. _250MMSTRIKECANNONS_CANCEL could not be regular const
+      Api::AbilityId::singleton_methods.select { |m| m[0] == '_' }.each do |const_name|
+        return "#{klass}::#{const_name}"
+      end
+      if fallback
+        return value
+      end
+      raise "Error: const value not found (#{klass}, #{value})"
+    end
+
+    # Helper for generating AbilitId from stableid json
+    def ability_constants(data)
+      result = {}
+      data.each do |row|
+        # key names need to match python data techtree _exactly_
+        id = row["id"]
+        name = row["name"].to_s
+        friendlyname = row["friendlyname"].to_s
+        key = row["buttonname"].to_s || friendlyname
+
+        # remap + empty check
+        next if row["buttonname"].empty? && row["remapid"].to_s.empty?
+
+        if !friendlyname.empty?
+          key = friendlyname
+        elsif name
+          # If using buttonname (and not friendlyname), prefix name
+          key = "#{name}_#{key}"
+        end
+
+        # constantize
+        key = key.tr(" ", "_").tr("@", "").upcase
+        # dont start with number
+        key.prepend("def self._") unless (key =~ /^\d+/).nil?
+
+        # exceptions
+        if result.key?(key) && row["index"] != 0
+          # puts "Notice: Skipping existing key: #{key} = #{result[key]}, with skipped value: #{id}"
+        else
+          # puts "Writing: #{key} = #{id} (overwrite?: #{result[key]})"
+          result[key] = id
+        end
+        # result.delete("SMART_SMART")
+        result["SMART"] = 1
+      end
+      result
+    end
+
+    # Helper for generating constants classes (excluding abilities) from stableid json
+    def generic_constants(data)
+      result = {}
+      data.each do |r|
+        key = r["name"].empty? ? "UNKNOWN#{r["id"]}" : r["name"]
+        key = key.upcase.tr("@", "")
+
+        index = 2
+        clean_key = key
+        while result.key?(key)
+          key = "#{clean_key}_#{index}"
+          index += 1
+        end
+        result[key] = r["id"]
+      end
+      result
+    end
+
+    # FROM: Data --------------------------------------------------------
+    def ability_redirects(data)
+
+      result = {}
+      data.each do |r|
+        ability_id = r["id"]
+        remaps_to_ability_id = r["remaps_to_ability_id"]
+        next if remaps_to_ability_id.nil?
+        next unless Api::AbilityId.ids.include?(remaps_to_ability_id)
+
+        result[ability_id] = remaps_to_ability_id
+      end
+      result
+    end
+
+    def unit_type_creation_abilities(data)
+      ability_data = data["Ability"]
+      unit_data = data["Unit"]
+
+      # From which abilities can a unit be trained
+      train_abilities = {} #: Dict[UnitTypeId, Set[AbilityId]] = OrderedDict2()
+      # If the ability requires a placement position
+      ability_requires_placement = [] #: Set[AbilityId] = set()
+      # Map ability to unittypeid
+      ability_to_unittypeid_dict = {} #: Dict[AbilityId, UnitTypeId] = OrderedDict2()
+
+      ability_data.each do |entry|
+        # "target is a hash with key "Train"
+        next if entry["target"].is_a? String
+
+        ability_id = entry["id"] #AbilityId
+
+        # Check if it is a unit train ability
+        requires_placement = false
+        train_unit_type_id_value = entry.dig("target", "Train", "produces")
+        train_place_unit_type_id_value = entry.dig("target", "TrainPlace", "produces")
+        morph_unit_type_id_value = entry.dig("target", "Morph", "produces")
+        build_unit_type_id_value = entry.dig("target", "Build", "produces")
+        build_on_unit_unit_type_id_value = entry.dig("target", "BuildOnUnit", "produces")
+
+        if !train_unit_type_id_value and train_place_unit_type_id_value
+          train_unit_type_id_value = train_place_unit_type_id_value
+          requires_placement = true
+        end
+
+        # Collect larva morph abilities, and one way morphs (exclude burrow, hellbat morph, siege tank siege)
+        # Also doesnt include building addons
+        # If all morph units are used, unit_trained_from.py will be "wrong" because it will list that a siege tank can be trained from siegetanksieged and similar:
+        # UnitTypeId.SIEGETANK: {UnitTypeId.SIEGETANKSIEGED, UnitTypeId.FACTORY},
+        if !train_unit_type_id_value && (
+          entry["name"].include?("LARVATRAIN_") ||
+            [
+              Api::AbilityId::MORPHTOBROODLORD_BROODLORD,
+              Api::AbilityId::MORPHZERGLINGTOBANELING_BANELING,
+              Api::AbilityId::MORPHTORAVAGER_RAVAGER,
+              Api::AbilityId::MORPH_LURKER,
+              Api::AbilityId::UPGRADETOLAIR_LAIR,
+              Api::AbilityId::UPGRADETOHIVE_HIVE,
+              Api::AbilityId::UPGRADETOGREATERSPIRE_GREATERSPIRE,
+              Api::AbilityId::UPGRADETOORBITAL_ORBITALCOMMAND,
+              Api::AbilityId::UPGRADETOPLANETARYFORTRESS_PLANETARYFORTRESS,
+              Api::AbilityId::MORPH_OVERLORDTRANSPORT,
+              Api::AbilityId::MORPH_OVERSEER,
+            ].include?(ability_id)
+        )
+
+          # if not train_unit_type_id_value and morph_unit_type_id_value:
+          train_unit_type_id_value = morph_unit_type_id_value
+        end
+
+        # Add all build abilities, like construct buildings and train queen (exception)
+        if !train_unit_type_id_value && build_unit_type_id_value
+          train_unit_type_id_value = build_unit_type_id_value
+          requires_placement = true if entry["name"].include?("BUILD_")
+        end
+
+        # Add build gas building (refinery, assimilator, extractor)
+        if !train_unit_type_id_value && build_on_unit_unit_type_id_value
+          train_unit_type_id_value = build_on_unit_unit_type_id_value
+        end
+
+        if train_unit_type_id_value && train_unit_type_id_value != 0
+          train_abilities[train_unit_type_id_value] = [] unless train_abilities.has_key?(train_unit_type_id_value)
+          train_abilities[train_unit_type_id_value].push(ability_id)
+          if requires_placement
+            ability_requires_placement.push(ability_id)
+          end
+          ability_to_unittypeid_dict[ability_id] = train_unit_type_id_value
+        end
+
+      end
+
+      # unit_train_abilities = {
+      #     UnitTypeId.GATEWAY: {
+      #         UnitTypeId.ADEPT: {
+      #             "ability": AbilityId.TRAIN_ADEPT,
+      #             :requires_techlab: False,
+      #             :required_building: UnitTypeId.CYBERNETICSCORE, # Or None
+      #             :requires_placement_position: False, # True for warp gate
+      #             :requires_power: True, # If a pylon nearby is required
+      #         },
+      #         UnitTypeId.Zealot: {
+      #             "ability": AbilityId.GATEWAYTRAIN_ZEALOT,
+      #             ...
+      #         }
+      #     }
+      # }
+
+      unit_train_abilities = {}
+      # Dict[UnitTypeId, Dict[str, Union[AbilityId, bool, UnitTypeId]]] = OrderedDict2()
+      unit_data.each do |entry|
+        unit_abilities = entry["abilities"] || []
+        unit_type = entry["id"]
+        current_unit_train_abilities = {}
+        unit_abilities.each do |unit_ability|
+          ability_id = unit_ability["ability"]
+          next unless ability_id
+          # Ability is not a train ability
+          resulting_unit = ability_to_unittypeid_dict[ability_id]
+          next unless resulting_unit
+
+          requires_techlab = false
+          required_building = nil # UnitTypeId
+          requires_placement_position = ability_requires_placement.include?(ability_id)
+
+          requirements = unit_ability["requirements"] # [{"asdf" => 123},...]
+          if requirements
+            #Assume train abilities only have one tech building requirement; thors requiring armory and techlab is seperatedly counted
+            if requirements.select { |r| r["building"] }.size > 1
+              raise "Error: Building #{unit_type} has more than one tech requirements with train ability #{ability_id}"
+            end
+
+            requires_techlab = requirements.any? { |r| r["addon"] == Api::UnitTypeId::TECHLAB }
+            required_building = requirements.find { |r| r["building"] }
+            required_building = required_building["building"] unless required_building.nil?
+          end
+
+          ability_dict = { ability: ability_id }
+          # Only add boolean values and tech requirement if they actually exist, to make the resulting dict file smaller
+          if requires_techlab
+            ability_dict[:requires_techlab] = requires_techlab
+          end
+          if required_building
+            ability_dict[:required_building] = required_building
+          end
+          if requires_placement_position
+            ability_dict[:requires_placement_position] = requires_placement_position
+          end
+          if !!entry["needs_power"]
+            ability_dict[:requires_power] = !!entry["needs_power"]
+          end
+          current_unit_train_abilities[resulting_unit] = ability_dict
+        end
+
+        unit_train_abilities[unit_type] = current_unit_train_abilities unless current_unit_train_abilities.empty?
+      end
+      return unit_train_abilities
+    end
+
+    def upgrade_research_abilities_data(data)
+      ability_data = data["Ability"]
+      unit_data = data["Unit"]
+      # upgrade_data = data["Upgrade"] #unused? weird.
+
+      ability_to_upgrade = {}
+      # We want to be able to research an upgrade by doing
+      # await self.can_research(UpgradeId, return_idle_structures=True) -> returns list of idle structures that can research it
+      # So we need to assign each upgrade id one building type, and its research ability and requirements (e.g. armory for infantry level 2)
+      #
+      # i.e.
+      # upgrade_research_abilities_data = {
+      #     UnitTypeId.ENGINEERINGBAY: {
+      #         UpgradeId.TERRANINFANTRYWEAPONSLEVEL1:
+      #         {
+      #             :ability: AbilityId.ENGINEERINGBAYRESEARCH_TERRANINFANTRYWEAPONSLEVEL1,
+      #             :required_building: None,
+      #             :requires_power: False, # If a pylon nearby is required
+      #         },
+      #         UpgradeId.TERRANINFANTRYWEAPONSLEVEL2: {
+      #             :ability: AbilityId.ENGINEERINGBAYRESEARCH_TERRANINFANTRYWEAPONSLEVEL2,
+      #             :required_building: UnitTypeId.ARMORY,
+      #             :requires_power: False, # If a pylon nearby is required
+      #         },
+      #     }
+      # }
+
+      # Collect all upgrades and their corresponding abilities
+      ability_data.each do |entry|
+        next if entry["target"].is_a? String
+        ability_id = entry["id"] # AbilityId
+
+        upgrade_id = entry.dig("target", "Research", "upgrade")
+        ability_to_upgrade[ability_id] = upgrade_id if upgrade_id
+      end
+
+      unit_research_abilities = {}
+      unit_data.each do |entry|
+        unit_abilities = entry["abilities"] || []
+        unit_type = entry["id"]
+
+        next if unit_type == Api::UnitTypeId::TECHLAB
+
+        # Get research required for current unit's abilities
+        current_unit_research_abilities = {}
+
+        unit_abilities.each do |ability_info|
+          ability_id = ability_info["ability"]
+          next unless ability_id
+          # Upgrade is not a known upgrade ability
+          next unless ability_to_upgrade[ability_id]
+
+          # Check requirements
+          required_building = nil
+          required_upgrade = nil
+          requirements = ability_info["requirements"] || []
+          unless requirements.empty?
+            requirements.each do |req|
+              if req["building"]
+                required_building = req["building"]
+                break
+              end
+            end
+            requirements.each do |req|
+              if req["upgrade"]
+                required_upgrade = req["upgrade"]
+                break
+              end
+            end
+          end
+
+          requires_power = !!entry["needs_power"]
+          resulting_upgrade = ability_to_upgrade[ability_id]
+
+          research_info = { ability: ability_id }
+          research_info[:required_building] = required_building if required_building
+          research_info[:required_upgrade] = required_upgrade if required_upgrade
+          research_info[:requires_power] = requires_power if requires_power
+          current_unit_research_abilities[resulting_upgrade] = research_info
+        end
+
+        unless current_unit_research_abilities.empty?
+          unit_research_abilities[unit_type] = current_unit_research_abilities
+        end
+      end
+
+      return unit_research_abilities
+    end
+
+    def unit_created_from_data(unit_type_creation_abilities)
+      # unit_type_creation_abilities = {
+      #   UnitTypeId.ADEPT: {UnitTypeId.GATEWAY, UnitTypeId.WARPGATE},
+      #   UnitTypeId.ARMORY: {UnitTypeId.SCV},
+      #   UnitTypeId.ASSIMILATOR: {UnitTypeId.PROBE},
+      # }
+      unit_created_from = {}
+
+      unit_type_creation_abilities.each do |creator_unit, create_abilities|
+        create_abilities.each do |created_unit, create_info|
+          unit_created_from[created_unit] = [] unless unit_created_from.has_key?(created_unit)
+          unit_created_from[created_unit].push(creator_unit)
+        end
+      end
+
+      unit_created_from
+    end
+
+    def upgrade_researched_from_data(upgrade_research_abilities_data)
+      upgrade_researched_from = {}
+
+      upgrade_research_abilities_data.each do |researcher_unit, research_abilities|
+        research_abilities.each do |upgrade, research_info|
+          # This if statement is to prevent later entries,
+          #   i.e. LAIR and HIVE overriding "UpgradeId.OVERLORDSPEED"
+          #   as well as greater spire overriding upgrade abilities
+          unless upgrade_researched_from.has_key? upgrade
+            upgrade_researched_from[upgrade] = researcher_unit
+          end
+        end
+      end
+      upgrade_researched_from
+    end
+
+    def unit_abilities_data(tree_data)
+      get_unit_abilities = {}
+      tree_data["Unit"].each do |unit|
+        unit_type_id = unit["id"]
+
+        get_unit_abilities[unit_type_id] = []
+        unit["abilities"].each do |ability_hash|
+          get_unit_abilities[unit_type_id].push ability_hash["ability"]
+        end
+      end
+      get_unit_abilities
+    end
+
+    def generate_unit_alias_data(data)
+      all_unit_aliases = {}
+      all_tech_aliases = {}
+      unit_data = data["Unit"]
+
+      unit_data.each do |entry|
+        unit_type_id = entry["id"]
+        all_unit_aliases[unit_type_id] = entry["unit_alias"] if entry["unit_alias"] && entry["unit_alias"] != 0
+        all_tech_aliases[unit_type_id] = entry["tech_alias"] if entry["tech_alias"] && !entry["tech_alias"].empty?
+      end
+
+      [all_unit_aliases, all_tech_aliases]
+    end
+
+  end
+
+end
+
+puts "Building data from StableId..."
+stable_data = JSON.load_file!("data/stableid.json")
+
+# ---- StableId: Abilities
+ability_constants = GenerateMetaData.ability_constants(stable_data["Abilities"])
+code_ability = <<~CODEGEN
+  # Generated from stableid.json, do not edit.
+
+  module Api
+    # Constant reference of Ability ids#{" "}
+    module AbilityId
+  #{ability_constants.inject((+"")) { |val, row| val << "    #{row[0]} = #{row[1]}\n" }}
+
+      # Returns an array of all constants
+      # @return [Array<Integer>]#{"      "}
+      def self.ids
+        @ids ||= #{ability_constants.values}
+      end
+    end
+  end
+CODEGEN
+Pathname(Sc2::Paths.project_root_dir).join("lib", "sc2ai", "api", "ability_id.rb").write(code_ability)
+
+# ---- StableId: Units Upgrades Buffs Effects
+# The remaining file is just key value pairs.
+%w[Units Upgrades Buffs Effects].each do |type|
+  data = stable_data[type]
+  type = type.delete_suffix "s"
+  file_prefix = type.downcase
+  if type == "Unit" # "Units" here are called "unit types" everywhere else
+    type = "UnitType"
+    file_prefix = "unit_type"
+  end
+  code_ability = <<~CODEGEN
+    # Generated from stableid.json, do not edit.
+
+    module Api
+      # Constant reference of #{type} ids#{" "}
+      module #{type}Id
+    #{GenerateMetaData.generic_constants(data).inject((+"")) { |val, row| val << "    #{row[0].gsub(/^\d+/) { |n| "def self._#{n}" }} = #{row[1]}\n" }}
+      end
+    end
+  CODEGEN
+  Pathname(Sc2::Paths.project_root_dir).join("lib", "sc2ai", "api", "#{file_prefix}_id.rb").write(code_ability)
+end
+
+puts "Loading fresh constants..."
+# Load our freshly created items for the work below
+require_relative "../lib/sc2ai/api/ability_id"
+require_relative "../lib/sc2ai/api/unit_type_id"
+require_relative "../lib/sc2ai/api/upgrade_id"
+require_relative "../lib/sc2ai/api/effect_id"
+require_relative "../lib/sc2ai/api/buff_id"
+
+puts "Building data from Techtree Data..."
+tree_data = JSON.load_file!("data/data.json")
+
+# ---- Data: Ability
+puts "Building ability redirects..."
+ability_redirects = GenerateMetaData.ability_redirects(tree_data["Ability"])
+# Human readable keys instead of values
+ability_redirects.transform_keys! { |ability_id| GenerateMetaData.const_name(Api::AbilityId, ability_id) }
+ability_redirects.transform_values! { |ability_id| GenerateMetaData.const_name(Api::AbilityId, ability_id) }
+code_ability = <<~CODEGEN
+  module Api
+    module AbilityId
+      class << self
+        # Returns the generic id of an ability, aka the "remapid" or "remaps_to_ability_id"
+        # @param ability_id [Integer]
+        # @return [Integer] either the current id if no remap or the remapped id
+        def generic_id(ability_id)
+          remap_ids[ability_id] || ability_id
+        end
+
+        private
+
+        def remap_ids = #{ability_redirects.pretty_inspect.gsub('"', "")}
+      end
+    end
+  end
+CODEGEN
+
+Pathname(Sc2::Paths.project_root_dir).join("lib", "sc2ai", "api", "ability_id.rb").write(code_ability, mode: File::RDWR | File::APPEND)
+
+# ---- Data: Train Info
+# Api::TechTree.train_info
+# A hash of abilities which train or create units
+puts "Building (private) Api::TechTree.unit_type_creation_abilities_data..."
+unit_type_creation_abilities_data = GenerateMetaData.unit_type_creation_abilities(tree_data)
+# reformat to readable strings
+# unit_type_creation_abilities_friendly = Marshal.load(Marshal.dump(unit_type_creation_abilities_data)) #unit_type_creation_abilities_data.dup
+# unit_type_creation_abilities_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+# unit_type_creation_abilities_friendly.transform_values! { |ability_id| GenerateMetaData.const_name(Api::AbilityId, ability_id) }
+
+unit_type_creation_abilities_friendly = Marshal.load(Marshal.dump(unit_type_creation_abilities_data))
+unit_type_creation_abilities_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+unit_type_creation_abilities_friendly.each do |unit_type, unit_type_creation|
+  unit_type_creation.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+  unit_type_creation.each do |upgrade_id, train_info|
+    train_info[:ability] = GenerateMetaData.const_name(Api::AbilityId, train_info[:ability])
+    if train_info[:required_building]
+      train_info[:required_building] = GenerateMetaData.const_name(Api::UnitTypeId, train_info[:required_building])
+    end
+    unit_type_creation_abilities_friendly[unit_type][upgrade_id] = train_info
+  end
+end
+
+# what_can_barrack_do = Api::Techtree.train_info(Api::UnitTypeId::BARRACKS)
+# example = {
+#   Api::UnitTypeId::GHOST => {
+#       "ability" => Api::AbilityId.BARRACKSTRAIN_GHOST,
+#       :requires_techlab => true,
+#       :required_building => Api::UnitTypeId.GHOSTACADEMY
+#    }
+#   #,....
+# }
+
+#Api::TechTree.upgrade_research_abilities
+# A hash of UnitTypeId with a hash of UpgradeId and keys for :ability AbilityId which trigger research
+puts "Building (private) Api::TechTree.upgrade_research_abilities_data..."
+upgrade_research_abilities_data = GenerateMetaData.upgrade_research_abilities_data(tree_data)
+# reformat to readable strings
+upgrade_research_abilities_friendly = Marshal.load(Marshal.dump(upgrade_research_abilities_data)) #upgrade_research_abilities_data.dup
+upgrade_research_abilities_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+upgrade_research_abilities_friendly.each do |unit_type, upgrade_hash|
+  upgrade_hash.transform_keys! { |upgrade_id| GenerateMetaData.const_name(Api::UpgradeId, upgrade_id) }
+  upgrade_hash.each do |upgrade_id, research_info|
+    research_info[:ability] = GenerateMetaData.const_name(Api::AbilityId, research_info[:ability])
+    if research_info[:required_building]
+      research_info[:required_building] = GenerateMetaData.const_name(Api::UnitTypeId, research_info[:required_building])
+    end
+    if research_info[:required_upgrade]
+      research_info[:required_upgrade] = GenerateMetaData.const_name(Api::UpgradeId, research_info[:required_upgrade])
+    end
+
+    upgrade_research_abilities_friendly[unit_type][upgrade_id] = research_info
+  end
+end
+
+# Api::TechTree.unit_created_from
+# A hash where you can find what a unit is trained from
+puts "Building (private) Api::TechTree.unit_created_from_data..."
+unit_created_from_data = GenerateMetaData.unit_created_from_data(unit_type_creation_abilities_data)
+# reformat to readable strings
+unit_created_from_friendly = Marshal.load(Marshal.dump(unit_created_from_data)) #unit_type_creation_abilities_data.dup
+unit_created_from_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+unit_created_from_friendly.transform_values! { |unit_types| unit_types.map { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) } }
+
+# Api::TechTree.upgrade_researched_from
+# A hash where you can find what an upgrade is researched from
+puts "Building (private) Api::TechTree.upgrade_researched_from_data..."
+upgrade_researched_from_data = GenerateMetaData.upgrade_researched_from_data(upgrade_research_abilities_data)
+# reformat to readable strings
+upgrade_researched_from_friendly = Marshal.load(Marshal.dump(upgrade_researched_from_data)) #unit_type_creation_abilities_data.dup
+upgrade_researched_from_friendly.transform_keys! { |upgrade_id| GenerateMetaData.const_name(Api::UpgradeId, upgrade_id) }
+upgrade_researched_from_friendly.transform_values! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+#continue
+
+# # All unit abilities without requirements
+puts "Building (private) Api::TechTree.unit_abilities_data..."
+unit_abilities_data = GenerateMetaData.unit_abilities_data(tree_data)
+# reformat to readable strings
+unit_abilities_friendly = Marshal.load(Marshal.dump(unit_abilities_data))
+unit_abilities_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+unit_abilities_friendly.transform_values! { |abilities| abilities.map { |ability_id| GenerateMetaData.const_name(Api::AbilityId, ability_id) } }
+
+# All unit_alias and tech_alias of a unit type
+puts "Building (private) Api::TechTree.unit_alias_data && Api::TechTree.unit_tech_alias_data..."
+unit_alias_data, unit_tech_alias_data = GenerateMetaData.generate_unit_alias_data(tree_data)
+# reformat to readable strings
+unit_alias_friendly = Marshal.load(Marshal.dump(unit_alias_data))
+unit_alias_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+unit_alias_friendly.transform_values! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+
+unit_tech_alias_friendly = Marshal.load(Marshal.dump(unit_tech_alias_data))
+unit_tech_alias_friendly.transform_keys! { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) }
+unit_tech_alias_friendly.transform_values! { |unit_types| unit_types.map { |unit_type_id| GenerateMetaData.const_name(Api::UnitTypeId, unit_type_id) } }
+
+
+code_ability = <<~CODEGEN
+   module Api
+     module TechTree
+       class << self
+         private
+
+         def unit_type_creation_abilities_data = #{unit_type_creation_abilities_friendly.pretty_inspect.gsub('"', "")}
+         
+         # We want to be able to research an upgrade by doing
+         # can_research(UpgradeId, return_idle_structures=True) -> returns list of idle structures that can research it
+         # So we need to assign each upgrade id one building type, and its research ability and requirements (e.g. armory for infantry level 2)
+         #
+         # i.e.
+         # upgrade_research_abilities_data = {
+         #     UnitTypeId.ENGINEERINGBAY: {
+         #         UpgradeId.TERRANINFANTRYWEAPONSLEVEL1:
+         #         {
+         #             ability: AbilityId.ENGINEERINGBAYRESEARCH_TERRANINFANTRYWEAPONSLEVEL1,
+         #             required_building: None,
+         #             requires_power: False, # If a pylon nearby is required
+         #         },
+         #         UpgradeId.TERRANINFANTRYWEAPONSLEVEL2: {
+         #             ability: AbilityId.ENGINEERINGBAYRESEARCH_TERRANINFANTRYWEAPONSLEVEL2,
+         #             required_building: UnitTypeId.ARMORY,
+         #             requires_power: False, # If a pylon nearby is required
+         #         },
+         #     }
+         # }
+         def upgrade_research_abilities_data = #{upgrade_research_abilities_friendly.pretty_inspect.gsub('"', "")}
+
+         # unit_created_from_data = {
+         #   UnitTypeId.ADEPT: [UnitTypeId.GATEWAY, UnitTypeId.WARPGATE],
+         #   UnitTypeId.ARMORY: [UnitTypeId.SCV],
+         #   UnitTypeId.ASSIMILATOR: [UnitTypeId.PROBE],
+         # }
+         def unit_created_from_data = #{unit_created_from_friendly.pretty_inspect.gsub('"', "")}
+
+         # unit_created_from_data = {
+         #   UpgradeId.ADEPTPIERCINGATTACK: UnitTypeId.TWILIGHTCOUNCIL,
+         #   UpgradeId.ANABOLICSYNTHESIS: UnitTypeId.ULTRALISKCAVERN,
+         #   UpgradeId.BANSHEECLOAK: UnitTypeId.STARPORTTECHLAB,
+         # }
+         def upgrade_researched_from_data = #{upgrade_researched_from_friendly.pretty_inspect.gsub('"', "")}
+
+         def unit_abilities_data = #{unit_abilities_friendly.pretty_inspect.gsub('"', "")}
+
+         def unit_alias_data = #{unit_alias_friendly.pretty_inspect.gsub('"', "")}
+
+         def unit_tech_alias_data = #{unit_tech_alias_friendly.pretty_inspect.gsub('"', "")}
+         
+       end
+     end
+   end
+CODEGEN
+Pathname(Sc2::Paths.project_root_dir).join("lib", "sc2ai", "api", "tech_tree_data.rb").write(code_ability, mode: File::RDWR | File::CREAT | File::TRUNC)
+
+puts "Linting api/*.rb ..."
+#Rake::Task["standard:fix"].invoke()
+lint_path = Pathname(Sc2::Paths.project_root_dir).join("lib", "sc2ai", "api", "**/*.rb").to_s
+#Standard::Cli.new(Standard::RakeSupport.argvify + ["--fix", lint_path]).run
+Standard::Cli.new(Standard::RakeSupport.argvify + ["--fix", "--except", "Layout/LineLength", lint_path]).run
+
+puts "DONE"
