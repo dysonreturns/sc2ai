@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# This was used to download updated techtree data. In reality we generate our own now.
+
+# Thanks Burny <3
+# https://github.com/BurnySc2/sc2-techtree/blob/develop/data/data.json
+
+require "net/http"
+File.write("data/data.json", Net::HTTP.get(URI.parse("https://raw.githubusercontent.com/dysonreturns/sc2-techtree/develop/data/data.json")))

@@ -1,1 +1,22 @@
 ruby_version: 3.3
+
+ignore:                 # default: []
+  - 'data/**/*'
+  # Testing by hand
+  - 'outside_*.rb'
+  - 'test/**/*'
+  # Auto generated files
+  - 'lib/sc2ai/protocol/*.rb'
+  - 'lib/sc2ai/api/ability_id.rb'
+  - 'lib/sc2ai/api/buff_id.rb'
+  - 'lib/sc2ai/api/effect_id.rb'
+  - 'lib/sc2ai/api/tech_tree.rb'
+  - 'lib/sc2ai/api/tech_tree_data.rb'
+  - 'lib/sc2ai/api/unit_type_id.rb'
+  - 'lib/sc2ai/api/upgrade_id.rb'
+
+plugins:                # default: []
+  - standard-custom
+  - standard-performance
+
+

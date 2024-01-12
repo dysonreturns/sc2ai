@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# This command is used to update lib/../protocol/*_pb.rb files, which shouldn't ever happen again.
+
+require "fileutils"
+
+output_path = "lib/"
+proto_base_path = "data/"
+proto_relative_path = "sc2ai/protocol/"
+
+# Create output dir
+FileUtils.mkdir_p output_path
+
+# Fix .proto file paths which result in: require "sc2clientprotocol/"
+# Do this by replacing the weird import path prefix "sc2clientprotocol/"
+proto_files = Dir.glob("#{proto_base_path}#{proto_relative_path}*.proto")
+
+proto_files.each do |proto_file|
+  text = File.read(proto_file)
+  text = text.gsub('import "s2clientprotocol/', "import \"#{proto_relative_path}")
+  text = text.gsub("package SC2APIProtocol", "package Api")
+  File.open(proto_file, "w") { |file| file.puts text }
+end
+
+puts "extracting ruby..."
+cmd = "protoc --proto_path=#{proto_base_path} --ruby_out=#{output_path} #{proto_files.map do |f|
+  f.partition(proto_base_path).last
+end.join(" ")}"
+puts cmd
+Kernel.exec(cmd)
+
+# puts "extracting rbi..."
+# cmd = "protoc --proto_path=#{proto_base_path} --rbi_out=grpc:false:sorbet/rbi #{proto_files.map do |f|
+#   f.partition(proto_base_path).last
+# end.join(" ")}"
+# puts cmd
+Kernel.exec(cmd)
