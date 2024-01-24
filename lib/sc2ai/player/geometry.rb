@@ -603,7 +603,6 @@ module Sc2
         coordinates[nearest.sample].to_p2d
       end
 
-
       # Protoss ------
 
       # Draws a grid within a unit (pylon/prisms) radius, then selects points which are placeable
@@ -618,13 +617,13 @@ module Sc2
         # hardcoded unit radius, otherwise only obtainable by owning a unit already
         unit_type_id = Api::UnitTypeId::STALKER if unit_type_id.nil?
         target_radius = case unit_type_id
-                        when Api::UnitTypeId::STALKER
-                          0.625
-                        when Api::UnitTypeId::HIGHTEMPLAR, Api::UnitTypeId::DARKTEMPLAR
-                          0.375
-                        else
-                          0.5 # Adept, zealot, sentry, etc.
-                        end
+        when Api::UnitTypeId::STALKER
+          0.625
+        when Api::UnitTypeId::HIGHTEMPLAR, Api::UnitTypeId::DARKTEMPLAR
+          0.375
+        else
+          0.5 # Adept, zealot, sentry, etc.
+        end
         unit_width = target_radius * 2
 
         # power source's inner and outer radius
@@ -655,7 +654,7 @@ module Sc2
         # we arbitrarily decided that a pylon will no be surrounded by more than 50 units
         # We add 2.75 above, which is the fattest ground unit (nexus @ 2.75 radius)
         units_in_pylon_range = bot.all_units.nearest_to(pos: source.pos, amount: 50)
-                                        .select_in_circle(point: source.pos, radius: outer_radius + 2.75)
+          .select_in_circle(point: source.pos, radius: outer_radius + 2.75)
 
         # Reject warp points which overlap with units inside
         points.reject! do |point|
