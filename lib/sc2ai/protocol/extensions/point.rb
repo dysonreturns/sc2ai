@@ -1,15 +1,13 @@
 module Api
   # Adds additional functionality to message object Api::Point
   module PointExtension
-    def self.included(base)
-      super(base)
-      base.extend ClassMethods
-    end
-
+    # Creates a Point2D using x and y
+    # @return [Api::Point2D]
     def to_p2d
       Api::Point2D.new(x: x, y: y)
     end
 
+    # Adds additional functionality to message class Api::Point
     module ClassMethods
       # Shorthand for creating an instance for [x, y, z]
       # @example
@@ -22,3 +20,4 @@ module Api
   end
 end
 Api::Point.include Api::PointExtension
+Api::Point.include Api::PointExtension::ClassMethods

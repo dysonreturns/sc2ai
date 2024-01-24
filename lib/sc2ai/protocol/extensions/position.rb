@@ -92,33 +92,34 @@ module Sc2
     # Vector operations ---
 
     # For vector returns the magnitude, synonymous with Math.hypot
+    # @return [Float]
     def magnitude
       Math.hypot(x, y)
     end
 
     # The dot product of this vector and the other vector.
-    # @param other [Point2d] The other vector to calculate the dot product with.
+    # @param other [Api::Point2D] The other vector to calculate the dot product with.
     # @return [Float]
     def dot(other)
       x * other.x + y * other.y
     end
 
-    # The z-component of the cross product of this vector and the other vector.
-    # @param other [Point2d] The other vector to calculate the cross product with.
+    # The cross product of this vector and the other vector.
+    # @param other [Api::Point2D] The other vector to calculate the cross product with.
     # @return [Float]
     def cross_product(other)
       x * other.y - y * other.x
     end
 
     # The angle between this vector and the other vector, in radians.
-    # @param other [Point2d] The other vector to calculate the angle to.
+    # @param other [Api::Point2D] The other vector to calculate the angle to.
     # @return [Float]
     def angle_to(other)
       Math.acos(dot(other) / (magnitude * other.magnitude))
     end
 
     # A new point representing the normalized version of this vector (unit length).
-    # @return [Point2d]
+    # @return [Api::Point2D]
     def normalize
       divide(magnitude)
     end
@@ -128,6 +129,7 @@ module Sc2
     # Linear interpolation between this point and another for scale
     # Finds a point on a line between two points at % along the way. 0.0 returns self,  1.0 returns other, 0.5 is halfway.
     # @param scale [Float] a value between 0.0..1.0
+    # @return [Api::Point2D]
     def lerp(other, scale)
       Api::Point2D[x + (other.x - x) * scale, y + (other.y - y) * scale]
     end
@@ -136,6 +138,7 @@ module Sc2
 
     # Calculates the distance between self and other
     # @param other [Sc2::Position]
+    # @return [Float]
     def distance_to(other)
       if other.nil? || other == self
         return 0.0
@@ -153,6 +156,8 @@ module Sc2
       (x - other.x) * (y - other.y)
     end
 
+    # Distance between this point and coordinate of x and y
+    # @return [Float]
     def distance_to_coordinate(x:, y:)
       Math.hypot(self.x - x, self.y - y)
     end
@@ -173,18 +178,18 @@ module Sc2
     # Movement ---
 
     # Moves in direction towards other point by distance
-    # @param other [Point2D] The target point to move to.
+    # @param other [Api::Point2D] The target point to move to.
     # @param distance [Float] The distance to move.
-    # @return [Point2D]
+    # @return [Api::Point2D]
     def towards(other, distance)
       direction = other.subtract(self).normalize
       add(direction.multiply(distance))
     end
 
     # Moves in direction away from the other point by distance
-    # @param other [Point2D] The target point to move away from
+    # @param other [Api::Point2D] The target point to move away from
     # @param distance [Float] The distance to move.
-    # @return [Point2D]
+    # @return [Api::Point2D]
     def away_from(other, distance)
       towards(other, -distance)
     end

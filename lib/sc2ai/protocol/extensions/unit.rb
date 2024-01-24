@@ -1,15 +1,10 @@
-# Open up the unit class to enable yard doc to read it.
-module Api
-  # A protobuf message containing unit info
-  # @see data.proto message Unit{}
-  class Unit # < Google::Protobuf::AbstractMessage
-  end
-end
+# frozen_string_literal: true
 
 module Api
   # Adds additional functionality to message object Api::Unit
   # Mostly adds convenience methods by adding direct access to the Sc2::Bot data and api
   module UnitExtension
+    # @private
     def hash
       tag || super
     end
@@ -117,11 +112,17 @@ module Api
 
     # @!group Virtual properties
 
-    # @!attribute [r] radius
-    #   @return [Boolean] unit width is radius * 2
+    # Helpers for unit properties
+
     def width = radius * 2
+    # @!parse
+    #   # @!attribute width
+    #   # width = radius * 2
+    #   # @return [Float]
+    #   attr_reader :width
 
     # Some overrides to allow question mark references to boolean properties
+
     # @!attribute [r] is_flying?
     #   @return [Boolean] Unit is currently flying.
     def is_flying? = is_flying
@@ -168,21 +169,21 @@ module Api
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def action(ability_id:, target: nil, queue_command: false)
-      @bot.action(units: self, ability_id: ability_id, target: target, queue_command: queue_command)
+      @bot.action(units: self, ability_id:, target:, queue_command:)
     end
 
     # Shorthand for performing action SMART (right-click)
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def smart(target: nil, queue_command: false)
-      action(ability_id: Api::AbilityId::SMART, target: target, queue_command: queue_command)
+      action(ability_id: Api::AbilityId::SMART, target:, queue_command:)
     end
 
     # Shorthand for performing action ATTACK
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def attack(target:, queue_command: false)
-      action(ability_id: Api::AbilityId::ATTACK, target: target, queue_command: queue_command)
+      action(ability_id: Api::AbilityId::ATTACK, target:, queue_command:)
     end
 
     # Inverse of #attack, where you target self using another unit (source_unit)
@@ -190,9 +191,9 @@ module Api
     # @param queue_command [Boolean] shift+command
     # @return [void]
     def attack_with(units:, queue_command: false)
-      if units.is_a?(Api::Unit) || units.is_a?(Sc2::UnitGroup)
-        units.attack(target: self, queue_command: queue_command)
-      end
+      return unless units.is_a?(Api::Unit) || units.is_a?(Sc2::UnitGroup)
+
+      units.attack(target: self, queue_command:)
     end
 
     # Builds target unit type, i.e. issuing a build command to worker.build(...Api::UnitTypeId::BARRACKS)
@@ -236,19 +237,19 @@ module Api
         draw: Api::DebugDraw.new(
           lines: [
             Api::DebugLine.new(
-              color: color,
-              line: Api::Line.new(p0: p0, p1: p1)
+              color:,
+              line: Api::Line.new(p0:, p1:)
             ),
             Api::DebugLine.new(
-              color: color,
+              color:,
               line: Api::Line.new(p0: p2, p1: p3)
             ),
             Api::DebugLine.new(
-              color: color,
-              line: Api::Line.new(p0: p0, p1: p3)
+              color:,
+              line: Api::Line.new(p0:, p1: p3)
             ),
             Api::DebugLine.new(
-              color: color,
+              color:,
               line: Api::Line.new(p0: p1, p1: p2)
             )
           ]
@@ -264,7 +265,7 @@ module Api
       attack_range = unit_data.weapons[weapon_index].range
       raised_position = pos.dup
       raised_position.z += 0.01
-      @bot.debug_draw_sphere(point: raised_position, radius: attack_range, color: color)
+      @bot.debug_draw_sphere(point: raised_position, radius: attack_range, color:)
     end
 
     # Geometric/Map/Micro functions ---
@@ -272,9 +273,8 @@ module Api
     # Calculates the distance between self and other
     # @param other [Sc2::Position, Api::Unit, Api::PowerSource, Api::RadarRing, Api::Effect]
     def distance_to(other)
-      if other.nil? || other == self
-        return 0.0
-      end
+      return 0.0 if other.nil? || other == self
+
       other = other.pos unless other.is_a? Sc2::Position
       pos.distance_to(other)
     end
@@ -285,9 +285,7 @@ module Api
     # @param amount [Integer]
     # @return [Sc2::UnitGroup, Api::Unit, nil] return group or a Unit if amount is not passed
     def nearest(units:, amount: nil)
-      if !amount.nil? && amount.to_i <= 0
-        amount = 1
-      end
+      amount = 1 if !amount.nil? && amount.to_i <= 0
 
       # Performs suboptimal if sending an array. Don't.
       if units.is_a? Array
@@ -295,7 +293,7 @@ module Api
         units.use_kdtree = false # we will not re-use it's distance cache
       end
 
-      units.nearest_to(pos: pos, amount:)
+      units.nearest_to(pos:, amount:)
     end
 
     # Detects whether a unit is within a given circle
@@ -321,18 +319,6 @@ module Api
         [Api::AbilityId::EFFECT_REPAIR, Api::AbilityId::EFFECT_REPAIR_SCV, Api::AbilityId::EFFECT_REPAIR_MULE],
         target:
       )
-    end
-
-    # @private
-    # Reduces repitition in the is_*action*?(target:) methods
-    private def is_performing_ability_on_target?(abilities, target: nil)
-      # Exit if not actioning the ability
-      return false unless is_performing_ability?(abilities)
-
-      # If a target was given and we're targeting it, us that value
-      return is_engaged_with?(target) unless target.nil?
-
-      true
     end
 
     # Checks whether the unit has
@@ -428,8 +414,9 @@ module Api
     # @return [Integer] number of harvesters required to saturate this structure
     def missing_harvesters
       return 0 if ideal_harvesters.zero?
+
       missing = ideal_harvesters - assigned_harvesters
-      (missing > 0) ? missing : 0
+      missing.positive? ? missing : 0
     end
 
     # The placement size, by looking up unit's creation ability, then game ability data
@@ -482,6 +469,20 @@ module Api
     # @return [void]
     def build_tech_lab
       build(unit_type_id: Api::UnitTypeId::TECHLAB)
+    end
+
+    private
+
+    # @private
+    # Reduces repitition in the is_*action*?(target:) methods
+    def is_performing_ability_on_target?(abilities, target: nil)
+      # Exit if not actioning the ability
+      return false unless is_performing_ability?(abilities)
+
+      # If a target was given and we're targeting it, us that value
+      return is_engaged_with?(target) unless target.nil?
+
+      true
     end
   end
 end

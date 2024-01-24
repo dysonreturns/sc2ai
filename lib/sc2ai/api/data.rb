@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
-require_relative "api/ability_id"
-require_relative "api/unit_type_id"
-require_relative "api/upgrade_id"
-require_relative "api/buff_id"
-require_relative "api/effect_id"
-require_relative "api/tech_tree"
+require_relative "ability_id"
+require_relative "unit_type_id"
+require_relative "upgrade_id"
+require_relative "buff_id"
+require_relative "effect_id"
+require_relative "tech_tree"
 
 module Sc2
   # Holds game data from tech tree and Api::ResponseData
   # Called once on game start
   class Data
     # @!attribute abilities
-    #   @return [Hash<Integer, Api::AbilityData]>]  AbilitId => AbilityData
+    #   @return [Hash<Integer, Api::AbilityData>]  AbilityId => AbilityData
     attr_accessor :abilities
     # @!attribute units
     #   @return [Hash<Integer, Api::UnitTypeData>] UnitId => UnitData
     attr_accessor :units
     # @!attribute upgrades
-    #   @return [Hash<Integer, Api::UpgradeData>] UpgradeId => UpgradeData
+    #   @return [Hash<Integer, Api::UnitTypeData>] UnitTypeId => UnitTypeData
     attr_accessor :upgrades
     # @!attribute buffs
     # Not particularly useful data. Just use BuffId directly
-    #   @return [Hash<Integer, Api::UpgradeData>] BuffId => BuffData
+    #   @return [Hash<Integer, Api::BuffData>] BuffId => BuffData
     attr_accessor :buffs
     # @!attribute effects
     # Not particularly useful data. Just use EffectId directly
-    #   @return [Hash<Integer, Api::UpgradeData>] EffectId => EffectData
+    #   @return [Hash<Integer, Api::EffectData>] EffectId => EffectData
     attr_accessor :effects
 
     # @param data [Api::ResponseData]

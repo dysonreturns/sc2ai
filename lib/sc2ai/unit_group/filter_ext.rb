@@ -4,7 +4,7 @@ require "sc2ai/unit_group"
 require "kdtree"
 
 module Sc2
-  # A set of filters defined
+  # Manage virtual control groups of units, similar to Hash or Array.
   class UnitGroup
     TYPE_WORKER = [Api::UnitTypeId::SCV, Api::UnitTypeId::MULE, Api::UnitTypeId::DRONE, Api::UnitTypeId::DRONEBURROWED, Api::UnitTypeId::PROBE].freeze
     TYPE_GAS_STRUCTURE = [
@@ -119,14 +119,12 @@ module Sc2
         super
       end
 
-      # TODO: This needs yjit opt (splat args)
       # @private
       # Does the opposite of selector and returns those values for parent
       def select_type(*)
         @parent.reject_type(*)
       end
 
-      # TODO: This needs yjit opt (splat args)
       # Does the opposite of selector and returns those values for parent
       def reject_type(*)
         @parent.select_type(*)
@@ -191,6 +189,8 @@ module Sc2
       reject_type(non_army_unit_type_ids)
     end
 
+    # Selects units with attribute Structure
+    # @return [Sc2::UnitGroup] structures
     def structures
       select_attribute(Api::Attribute::Structure)
     end
@@ -211,7 +211,6 @@ module Sc2
       ]
     end
 
-    # TODO: Get feedback on whether bases should include flying or not
     # Selects command posts (CC, OC, PF, Nexus, Hatch, Hive, Lair)
     # Aliases are #hq and #townhalls
     # @return [Sc2::UnitGroup] unit group of workers

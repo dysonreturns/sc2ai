@@ -1,8 +1,9 @@
 require_relative "tech_tree_data"
 
-# Provides helper functions which work with and rely on auto generated data in tech_tree_data.rb
-# To lighten code generation, these methods live in a file of their own and may be modified.
+
 module Api
+  # Provides helper functions which work with and rely on auto generated data in tech_tree_data.rb
+  # To lighten code generation, these methods live in a file of their own and may be modified.
   module TechTree
     class << self
       # Get units can be created at source + the ability to trigger it. Optionally target a specific unit from source

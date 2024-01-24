@@ -34,7 +34,6 @@ module Sc2
       @_cache = {}
     end
 
-    # TODO: The docs in these can be more explicit than "Forwards to :@unit"
     # @!macro [attach] def_delegators
     #   @!method $2
     #     Forwards to hash of #units.
@@ -44,23 +43,35 @@ module Sc2
     def_delegator :@units, :length # Returns the count of entries.
     def_delegator :@units, :size # Returns the count of entries.
 
+    # @!macro [attach] def_delegators
+    #   @!method $2
+    #     Forwards to hash of #units.
+    #     @see Hash#$2
     def_delegator :@units, :< # Returns whether #units is a proper subset of a given object.
     def_delegator :@units, :<= # Returns whether #units is a subset of a given object.
     def_delegator :@units, :== # Returns whether a given object is equal to #units.
     def_delegator :@units, :> # Returns whether #units is a proper superset of a given object
     def_delegator :@units, :>= # Returns whether #units is a proper superset of a given object.
 
+    # @!macro [attach] def_delegators
+    #   @!method $2
+    #     Forwards to hash of #units.
+    #     @see Hash#$2
     def_delegator :@units, :[] # Returns the value associated with the given key, if found
     def_delegator :@units, :keys # Returns an array containing all keys in #units.
     def_delegator :@units, :values # Returns an array containing all values in #units.
     def_delegator :@units, :values_at # Returns an array containing values for given tags in #units.
 
+    # @!macro [attach] def_delegators
+    #   @!method $2
+    #     Forwards to hash of #units.
+    #     @see Hash#$2
     def_delegator :@units, :clear # Removes all entries from #units.
-    # def_delegator :@units, :compact! # Removes all +nil+-valued entries from #units.
     def_delegator :@units, :delete_if # Removes entries selected by a given block.
     def_delegator :@units, :select! # Keep only those entries selected by a given block
     def_delegator :@units, :filter! # Keep only those entries selected by a given block
     def_delegator :@units, :keep_if # Keep only those entries selected by a given block
+    # def_delegator :@units, :compact! # Removes all +nil+-valued entries from #units.
 
     # find_all, #filter, #select: Returns elements selected by the block.
 

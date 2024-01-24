@@ -1,13 +1,26 @@
 --protected
 --no-private
---embed-mixin ClassMethods
+--embed-mixin=ClassMethods
+--embed-mixin=Api::*Extension
+--embed-mixin=Api::*Extension::ClassMethods
+--embed-mixin=Sc2::Location
 --exclude /server/templates/
 --exclude /yard/rubygems/
---exclude lib/sc2ai/protocol/
+--exclude lib/sc2ai/protocol/common_pb.rb
+--exclude lib/sc2ai/protocol/data_pb.rb
+--exclude lib/sc2ai/protocol/debug_pb.rb
+--exclude lib/sc2ai/protocol/error_pb.rb
+--exclude lib/sc2ai/protocol/query_pb.rb
+--exclude lib/sc2ai/protocol/raw_pb.rb
+--exclude lib/sc2ai/protocol/sc2api_pb.rb
+--exclude lib/sc2ai/protocol/score_pb.rb
+--exclude lib/sc2ai/protocol/spatial_pb.rb
+--exclude lib/sc2ai/protocol/ui_pb.rb
 --hide-tag todo
---embed-mixin=Sc2::Client::ConfigurableOptions
+--embed-mixin Sc2::Client::ConfigurableOptions
 --readme ./docs/README.md
 --asset ./docs/images:images
+lib/**/*.rb
 -
 ./docs/*.md
 LICENSE.txt

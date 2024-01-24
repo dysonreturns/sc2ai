@@ -83,6 +83,9 @@ module Sc2
       @listeners[klass.to_s].push(listener)
     end
 
+    # Removes a listener of specific callback type
+    # @param listener [Object]
+    # @param klass [Module<Sc2::Connection::ConnectionListener>,Module<Sc2::Connection::StatusListener>]
     def remove_listener(listener, klass:)
       @listeners[klass.to_s].delete(listener)
     end

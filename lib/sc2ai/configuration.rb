@@ -34,6 +34,7 @@ module Sc2
       temp_dir
       egl_path
       osmesa_path
+      enable_feature_layer
     ].freeze
 
     # @!attribute sc2_platform
@@ -51,6 +52,11 @@ module Sc2
     #   Launch param: -listen
     #   @return [Array<Integer>]
     attr_accessor :ports
+
+    # @!attribute enable_feature_layer
+    #   Enables the feature layer at 1x1 pixels
+    #   @return [Boolean] enable_feature_layer
+    attr_accessor :enable_feature_layer
 
     # Create a new Configuration and sets defaults and loads config from yaml
     # @return [Sc2::Configuration]
@@ -76,6 +82,7 @@ module Sc2
       @sc2_platform = Paths.platform
       @sc2_path = Paths.install_dir
       @ports = []
+      @enable_feature_layer = false
 
       load_default_launch_options
     end

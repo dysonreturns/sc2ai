@@ -6,6 +6,8 @@ module Sc2
   # Runs a match using a map and player configuration
   class Match
     include Sc2::Connection::StatusListener
+
+    # Callback when game status changes
     def on_status_change(status)
       Sc2.logger.debug { "Status from Match: #{status}" }
 
@@ -70,7 +72,8 @@ module Sc2
           run_task.async do
             player.join_game(
               server_host: ClientManager.get(player_index).host,
-              port_config:
+              port_config:,
+              enable_feature_layer: Sc2.config.enable_feature_layer
             )
 
             player.add_listener(self, klass: Connection::StatusListener)

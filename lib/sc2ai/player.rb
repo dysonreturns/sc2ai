@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "api/data"
 require_relative "connection/connection_listener"
 require_relative "connection/status_listener"
 require_relative "player/game_state"
@@ -133,11 +134,12 @@ module Sc2
     # @param server_host [String] ip address
     # @param port_config [Sc2::PortConfig]
     # @param interface_options [Hash]
-    def join_game(server_host:, port_config:, interface_options: {})
+    def join_game(server_host:, port_config:, enable_feature_layer:, interface_options: {})
       Sc2.logger.debug { "Player \"#{@name}\" joining game..." }
-      @api.join_game(name: @name, race: @race, server_host:, port_config:, interface_options:) # , enable_feature_layer: false)
+      @api.join_game(name: @name, race: @race, server_host:, port_config:, enable_feature_layer:, interface_options:) # , enable_feature_layer: false)
     end
 
+    # Multiplayer only. Disconnects from a multiplayer game, equivalent to surrender. Keeps client alive.
     def leave_game
       @api.leave_game
     end

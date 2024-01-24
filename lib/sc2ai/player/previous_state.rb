@@ -28,7 +28,7 @@ module Sc2
         @spent_minerals = bot.spent_minerals
         @spent_vespene = bot.spent_vespene
         @spent_supply = bot.spent_supply
-        # Skipping unnecessary bloat: events_*, chats_received, ...
+        # Skipping unnecessary bloat: event_*, chats_received, ...
 
         after_reset(bot)
       end

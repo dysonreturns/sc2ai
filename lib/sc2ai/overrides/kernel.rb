@@ -3,6 +3,8 @@
 # @private
 # Patched from: rails/activesupport/lib/active_support/core_ext/kernel/reporting.rb
 # https://github.com/rails/rails/blob/04972d9b9ef60796dc8f0917817b5392d61fcf09/activesupport/lib/active_support/core_ext/kernel/reporting.rb#L26
+
+# Kernel extensions
 module Kernel
   module_function
 
