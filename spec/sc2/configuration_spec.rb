@@ -31,7 +31,8 @@ RSpec.describe Sc2::Configuration do
         data_dir: "/a/path/data",
         temp_dir: "/a/path/tmp",
         egl_path: "/a/path/egl.so",
-        osmesa_path: "/a/path/osmesa.so"
+        osmesa_path: "/a/path/osmesa.so",
+        enable_feature_layer: false
       }
     end
 
