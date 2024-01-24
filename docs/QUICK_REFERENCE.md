@@ -7,7 +7,15 @@ If you are reading the tutorial for the first time, scroll over basic info below
 You will feel overwhelmed if you read this all in one go, so lets rather start with small examples.  
 After a quick scroll-over, {file:docs/TUTORIAL_01.md let's do some tutorials}.
 
-Unless stated otherwise, in the tables below methods are from the context of an instance of a Bot. Meaning `on_step` you can call `common.minerals`.
+## Overview
+
+Even though it's a reference, this document  _can_ be read top to bottom:  
+- Glossing over constants and common game info, we then look in detail at  
+- Unit/Group selection, actions, info and events.  
+- Zooming out, we then review the match lifecycle, callbacks, api observations and communication.  
+- We round off with map awareness and geometry, followed by static and meta-data.    
+
+Unless stated otherwise, in the tables below, methods are from the context of an instance of a Bot. Meaning `on_step` you can call `common.minerals`.
 
 ## Constants
 
@@ -285,7 +293,7 @@ def on_step
     # Find the nearest energy source, typically a Pylon (Api::Unit)
     energy_source = structures.warpables.nearest_to(pos: enemy_main)
 
-    # geo.warp_points finds an array of 2d coordinates inside the power field
+    # geo.warp_points finds an array of 2D coordinates inside the power field
     # it matches the size of the unit_type_id passed, so they don't overlap
     points = geo.warp_points(source: energy_source,
                          unit_type_id: Api::UnitTypeId::STALKER)
@@ -472,12 +480,12 @@ class MyBot < Sc2::Player::Bot
 end
 ```
 
-The approach you take is stylistic. That covers Unit events.
+The approach you take is stylistic. That covers Unit events, but there are additional callbacks below, once we learn about the match lifecycle.
 
 ## Lifecycle
 
 Typically handled by Match or the ladder runner, the bot will automatically connect to the host and create/join a server.
-The fist game state observation is made and bot is readied.
+The first game state observation is made and bot is readied.
 
 
 From here the lifecycle is as follows:  
@@ -503,6 +511,24 @@ You can override these in your bot for additional features.
 | on_upgrades_completed(upgrade_ids) | called before step with completed upgrade ids.                                               | _             |
 | on_random_race_detected(race)      | called before step when Random enemy race discovered first                                   | _             |
 | on_finish(result)                  | game over. result of :Victory, :Defeat or :Tie                                               | -             |
+
+These act just like the optional unit callbacks from [Unit Events](#label-Unit+Events) above. You define these methods in your bot for them to take effect.
+```ruby
+class MyBot < Sc2::Player::Bot
+  
+  def on_start
+    # load sqlite or flat files from ./data/* or do map parsing preparations
+    # check win-rate versus opponent and select your best build
+    # etc.
+  end
+  
+  def on_finish(result)
+    # Make a note of which strategy you chose for this opponent
+    # and whether `result` was a :Victory.
+  end
+  
+end
+```
 
 ## Observation of game state
 
@@ -594,33 +620,33 @@ If you are interested in sending raw commands, you should be familiar with the p
 https://github.com/dysonreturns/sc2ai/tree/main/data/sc2ai/protocol
 
 
-| method                        | desc                                                                                                 | Fast/Med/Slow |
-|-------------------------------|------------------------------------------------------------------------------------------------------|---------------|
-| ping                          | tests connection. returns client information                                                         | S             |
-| available_maps                | returns directory of maps that can be played on                                                      | S             |
-| create_game                   | send to host to initialize game                                                                      | S             |
-| join_game                     | joins a game                                                                                         | S             |
-| step(step_count = 1)          | ticks game loop forward by nr of steps                                                               | S             |
-| restart_game                  | restarts. single player only                                                                         | S             |
-| leave_game                    | disconnects from a multiplayer game                                                                  | S             |
-| request_quick_save            | saves game to an in-memory bookmark                                                                  | S             |
-| request_quick_load            | loads from quick save                                                                                | S             |
-| quit                          | quits and closes client. does not work on ladder                                                     | S             |
-| data                          | data about different gameplay elements. may be different for different games.                        | S             |
-| game_info                     | static data about the current game and map                                                           | S             |
-| observation                   | snapshot of the current game state                                                                   | S             |
-| query                         | additional methods for inspecting game state. synchronous and must wait on response                  | S             |
-| query_pathings                | pathing specific query helper                                                                        | S             |
-| query_abilities               | queries one or more ability availability checks                                                      | S             |
-| query_abilities_for_unit_tags | helper making ability queries using unit tags                                                        | S             |
-| query_placements              | query if locations are placeable                                                                     | S             |
-| action                        | executes an array of [Api::Action] for a participant. <br>rather use Bot#action* for batching.       | S             |
-| debug                         | display debug information and execute debug actions. <br>rather use Bot#debug* methods for batching. | S             |
-| save_replay                   | gets replay binary data                                                                              | S             |
-| replay_info                   | query game information about a replay without watching                                               | S             |
-| start_replay                  | for watching replays                                                                                 | S             |
-| observer_action               | move camera / follow player actions supported.                                                       | S             |
-| observer_action_camera_move   | observer only, camera move action helper                                                             | S             |
+| method                            | desc                                                                                                 | Fast/Med/Slow |
+|-----------------------------------|------------------------------------------------------------------------------------------------------|---------------|
+| api.ping                          | tests connection. returns client information                                                         | S             |
+| api.available_maps                | returns directory of maps that can be played on                                                      | S             |
+| api.create_game                   | send to host to initialize game                                                                      | S             |
+| api.join_game                     | joins a game                                                                                         | S             |
+| api.step(step_count = 1)          | ticks game loop forward by nr of steps                                                               | S             |
+| api.restart_game                  | restarts. single player only                                                                         | S             |
+| api.leave_game                    | disconnects from a multiplayer game                                                                  | S             |
+| api.request_quick_save            | saves game to an in-memory bookmark                                                                  | S             |
+| api.request_quick_load            | loads from quick save                                                                                | S             |
+| api.quit                          | quits and closes client. does not work on ladder                                                     | S             |
+| api.data                          | data about different gameplay elements. may be different for different games.                        | S             |
+| api.game_info                     | static data about the current game and map                                                           | S             |
+| api.observation                   | snapshot of the current game state                                                                   | S             |
+| api.query                         | additional methods for inspecting game state. synchronous and must wait on response                  | S             |
+| api.query_pathings                | pathing specific query helper                                                                        | S             |
+| api.query_abilities               | queries one or more ability availability checks                                                      | S             |
+| api.query_abilities_for_unit_tags | helper making ability queries using unit tags                                                        | S             |
+| api.query_placements              | query if locations are placeable                                                                     | S             |
+| api.action                        | executes an array of [Api::Action] for a participant. <br>rather use Bot#action* for batching.       | S             |
+| api.debug                         | display debug information and execute debug actions. <br>rather use Bot#debug* methods for batching. | S             |
+| api.save_replay                   | gets replay binary data                                                                              | S             |
+| api.replay_info                   | query game information about a replay without watching                                               | S             |
+| api.start_replay                  | for watching replays                                                                                 | S             |
+| api.observer_action               | move camera / follow player actions supported.                                                       | S             |
+| api.observer_action_camera_move   | observer only, camera move action helper                                                             | S             |
 
 
 ## Bot Actions
@@ -651,18 +677,38 @@ See {Sc2::Player::Actions}.
 | action_ui_production_panel_remove_from_queue | Feature Layer: remove unit from production in multi panel                                                               | S             |
 | action_ui_toggle_autocast                    | Feature Layer: enable/disable auto-cast for units                                                                       | S             |
 
-You will want for nothing more than this from the Api.
+Given these, will have no reason to perform raw Api commands.
+
+## Debug Actions
+
+For local, offline play only, you can use the debug methods to draw shapes and modify world behaviour such as instant-build and spawing/killing units.      
+Debug commands are useful for setting up specific test scenarios.    
+These commands are stripped at network layer on the competitive aiarena ladder.
+
+| method                                                      | desc                                                                                                                               | Fast/Med/Slow |
+|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| debug_create_unit(unit_type_id:, owner:, pos:, quantity: 1) | Spawns a quantity of units under an owner at position given.                                                                       | S             |
+| debug_draw_box(point:, radius: 0.5, color: nil)             | Draws a box around position xy at base of z.                                                                                       | S             |
+| debug_draw_line(p0:, p1:, color: nil)                       | Draws a line between two Api::Point’s for color.                                                                                   | S             |
+| debug_draw_sphere(point:, radius: 1.0, color: nil)          | Debug draws a sphere at position with a radius in color.                                                                           | S             |
+| debug_end_game(end_result:)                                 | Ends game with a specified result of either Surrender or DeclareVictory.                                                           | S             |
+| debug_game_state(command)                                   | Toggles cheat commands on/off (send only once to enable) See: Api::DebugGameState for values, i.e. Api::DebugGameState::Fast_build | S             |
+| debug_kill_unit(unit_tags:)                                 | Kills a target unit or unit tag.                                                                                                   | S             |
+| debug_print(text, size: 14)                                 | Prints debug text top left corner.                                                                                                 | S             |
+| debug_set_unit_value(unit_tag:, unit_value:, value:)        | Sets unit_value Energy, Life or Shields for a specific unit tag to given value.                                                    | S             |
+| queue_debug_command(debug_command)                          | Queues debug command for performing later.                                                                                         | S             |
 
 ## Geometry / Map
 
 ### Point2D
-Targeting on the API is often for a 2d location `Api::Point2D`.  
+Targeting on the API is often for a 2D location `Api::Point2D`.  
 Our `Api:Unit` positions are 3d, in the form of `Api::Point` (via `unit.pos`), but there are several position types.
 
-The library provides the uniform `Sc2::Position`, to ease interoperability.  
+The library provides the uniform `Sc2::Position`, to ease geometric interoperability.
+You can sum a 3D Point with a 2D Point2D and get a resulting Point2D, which ignores the z-axis.
 Proto objects `Api::Point`, `Api::Point2D`,`Api::PointI`,`Api::Size2DI` are additionally type `Sc2::Position` which respond to #x and #y.  
-An array of [x,y] coordinates can be turned into a `Api::Point2D` with Array#to_p2d.
 
+An array of [x,y] coordinates can be turned into a `Api::Point2D` with Array#to_p2d.
 Here are some frequent conversions you might do to get a target `Api::Point2D`.
 ```ruby
 # Creating directly
@@ -678,7 +724,7 @@ some_unit.pos.to_2d #=> <Api::Point2D: x: ..., y: ...>
 ```  
 
 **target keyword**  
-Additionally, most abstracted targets which require either a 2d position (`Api::Point2D`) or a unit's tag (`Integer`).   
+Additionally, most abstracted targets which require either a 2D position (`Api::Point2D`) or a unit's tag (`Integer`).   
 The `target:` keyword param in methods lets you know it accepts either.   
 To preserve syntactic flow without the need to type-cast as often, when you see "target", you can pass any reasonable type.  
 
@@ -747,7 +793,7 @@ From the context of your bot, you can access the following map/geo methods:
 | geo.map_unseen?(x:, y:)                                                            | has never been seen/explored before (dark fog)                                                                                                     | M             |
 | geo.creep?(x:, y:)                                                                 | Zerg: whether a tile has creep on it, as per minimap                                                                                               | M             |
 | geo.expansions                                                                     | Gets expos and surrounding minerals. <br>  `[Hash<Api::Point2D, UnitGroup>]` Location => UnitGroup of resources (minerals+geysers)                 | M             |
-| geo.expansion_points                                                               | Returns a list of 2d points for expansion build locations<br> = geo.expansions.keys                                                                | M             |
+| geo.expansion_points                                                               | Returns a list of 2D points for expansion build locations<br> = geo.expansions.keys                                                                | M             |
 | geo.expansions_unoccupied                                                          | a slice of #expansions where a base hasn't been built yet                                                                                          | M             |
 | geo.build_coordinates(length:, on_creep: false, in_power: false)                   | buildable point grid for squares of size, i.e. 3 = 3x3 placements                                                                                  | M             |
 | geo.build_placement_near(length:, target:, random: 1)                              | gets a buildable location for a square of length, near target. <br/>can randomly select between `random` number of possible points for robustness. | M             |
@@ -852,7 +898,7 @@ query_abilities_for_unit_tags(some_unit.tag, ignore_resource_requirements: true)
 
 ### Tech tree 
 
-Courtesy of the brilliant work of the python crew, Dentosal and Burny <3.  
+Courtesy of the brilliant work of the python crew, Dentosal and BuRny <3.  
 If you wish to do meta programming based on the game's tech requirement structure, you can use the tech {Api::TechTree}.  
 
 All calls are statically made to the class.
@@ -929,7 +975,8 @@ Once you've mastered everything, feel free to **reduce verbosity** in any way yo
 # Option A: Define short names. Safe.
 TID = Api::UnitTypeId # i.e. TID:MOTHERSHIP
 AID = Api::AbilityId # Api::AbilityId::EFFECT_STIM becomes AID:EFFECT_STIM
-# etc. EffectId, BuffId, UpgradeId
+
+# etc. for EffectId, BuffId, UpgradeId
 
 # Optionally: Namespace your bot inside module Sc2 to drop all Sc2::* prefixes. Safe.
 module Sc2

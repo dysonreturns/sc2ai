@@ -195,6 +195,7 @@ module Sc2
       # @param unit_tag [Integer]
       # @param unit_value [Integer] 1=Energy,2=Life,3=Shields one of Api::DebugSetUnitValue::UnitValue::*
       # @param value [Float] the value which the attribute will be set to
+      # @return [void]
       def debug_set_unit_value(unit_tag:, unit_value:, value:)
         queue_debug_command Api::DebugCommand.new(
           unit_value: Api::DebugSetUnitValue.new(

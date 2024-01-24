@@ -270,6 +270,9 @@ The good people at Blizzard Entertainment® and DeepMind Technologies Limited ("
 By the good graces of Blizzard (and now Microsoft©), their machine learning interface for StarCraft® II remains open for those who wish to experiment with AI in this seemingly stochastic, yet repeatable training environment.  
 Thanks Microsoft!
 
+Much of the runner standardization, tech tree and parsing was made using Dentosal and BuRny's python libraries as reference.  
+Their work is brilliant and I am eternally grateful to have walked in their footsteps.  
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).  
