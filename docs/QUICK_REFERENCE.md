@@ -377,7 +377,6 @@ puts "taking shield damage!" if unit.shield < unit.previous.shield
 | unit.attack_upgrade_level | int 0,1,2,3                                                                         | F             |
 | unit.armor_upgrade_level  | int 0,1,2,3                                                                         | F             |
 | unit.shield_upgrade_level | int 0,1,2,3                                                                         | F             |
-| unit.shield_upgrade_level | int 0,1,2,3                                                                         | F             |
 | unit.health               | float                                                                               | F             |
 | unit.health_max           | float                                                                               | F             |
 | unit.shield               | float                                                                               | F             |
@@ -473,7 +472,7 @@ class MyBot < Sc2::Player::Bot
 end
 ```
 
-The approach you take is stylistic. That covers Unit callbacks.
+The approach you take is stylistic. That covers Unit events.
 
 ## Lifecycle
 
@@ -660,7 +659,7 @@ You will want for nothing more than this from the Api.
 Targeting on the API is often for a 2d location `Api::Point2D`.  
 Our `Api:Unit` positions are 3d, in the form of `Api::Point` (via `unit.pos`), but there are several position types.
 
-The library provides the uniform `Sc2::Position`, to ease targeting 2d locations.  
+The library provides the uniform `Sc2::Position`, to ease interoperability.  
 Proto objects `Api::Point`, `Api::Point2D`,`Api::PointI`,`Api::Size2DI` are additionally type `Sc2::Position` which respond to #x and #y.  
 An array of [x,y] coordinates can be turned into a `Api::Point2D` with Array#to_p2d.
 
@@ -707,14 +706,14 @@ Through the library the **only time where X/Y is swapped** is when working with 
 
 Has Y amount of rows corresponding to map height and X amount of columns corresponding with map width.
 
-| method                 | desc                                                   | Fast/Med/Slow           |
-|------------------------|--------------------------------------------------------|-------------------------|
-| parsed_placement_grid  | boolean: map tiles marked placeable. static.           | F                       |
-| parsed_terrain_height  | float: z position (height) of tile. static.            | F                       |
-| parsed_pathing_grid    | boolean: pathable tiles. updates to reflect buildings. | S, then cached 2 frames |
-| parsed_visibility_grid | boolean: minimap visibility. int flag 0,1,2            | S, then cached 2 frames |
-| parsed_creep           | boolean: minimap Zerg's creep spread                   | F                       |
-| parsed_power_grid      | boolean: Protoss' powered tiles                        | F                       |
+| method                     | desc                                                   | Fast/Med/Slow           |
+|----------------------------|--------------------------------------------------------|-------------------------|
+| geo.parsed_placement_grid  | boolean: map tiles marked placeable. static.           | F                       |
+| geo.parsed_terrain_height  | float: z position (height) of tile. static.            | F                       |
+| geo.parsed_pathing_grid    | boolean: pathable tiles. updates to reflect buildings. | S, then cached 2 frames |
+| geo.parsed_visibility_grid | boolean: minimap visibility. int flag 0,1,2            | S, then cached 2 frames |
+| geo.parsed_creep           | boolean: minimap Zerg's creep spread                   | F                       |
+| geo.parsed_power_grid      | boolean: Protoss' powered tiles                        | F                       |
 
 
 For a visual aid, you can print the entire parsed_pathing_grid to console as 0's and 1's.
@@ -820,33 +819,36 @@ Data as it pertains to a specific unit's data type can be accessed via the conve
 # Consider you select a marine
 fighter = units.army.select_type(Api::UnitTypeId::MARINE).random
 
-# Print info about unit type Marine
+# Print info about unit type MARINE
 pp fighter.unit_data 
 
-# Or from the context of your Bot, get data about a specific unit
-unit_data(fighter)
+# Or from the context of your Bot, pass in a marine to get info about type MARINE
+pp unit_data(fighter)
 
-# Or by using a UnitTypeId
-unit_data(Api::UnitTypeId::MARINE)
+# Or by using a UnitTypeId directly
+pp unit_data(Api::UnitTypeId::MARINE)
 ```
+
+These are all equal.
 
 **Real-time data vs static**
 
 The Data class brings data from the current game, once before `on_start`. It is **fixed** for the entire game.  
 `some_unit.unit_data` (which calls `data.units`) will not change, nor will `data.abilities[...]`
- 
-Conversely, to know information about abilities in this very moment of the game, you can run a Query for that instead.    
-This will show, i.e. if a specific Ghost can Nuke or whether a Gateway can warp a Stalker, etc.  
+
+All actual {Api::Unit} properties are **realtime, for this moment**, refreshed on each Observation.  
+See the [protobuf message Unit](https://github.com/Blizzard/s2client-proto/blob/c04df4adbe274858a4eb8417175ee32ad02fd609/s2clientprotocol/raw.proto#L99) for a list of such properties or run #inspect on a Unit to observe it's attributes.  
+
+### Static Ability data vs Query
+
+As above with unit_data, `Bot#ability_data(ability_id)` can provide **static** information surrounding a specific ability.
+
+**Can a unit use the ability?**  
+Conversely, if you need **dynamic** information about which abilities the unit can perform right now, you can run a Query for that information.    
+This will show, i.e. if a specific Ghost can Nuke or whether a Gateway can warp a Stalker, etc.
 ```ruby
 query_abilities_for_unit_tags(some_unit.tag, ignore_resource_requirements: true)
 ```
-
-All actual {Api::Unit} properties are **realtime, for this moment**, refreshed on each Observation.  
-See the [protobuf message Unit](https://github.com/Blizzard/s2client-proto/blob/c04df4adbe274858a4eb8417175ee32ad02fd609/s2clientprotocol/raw.proto#L99) for a list of such properties or run #inspect on a unit to observe it's attributes.  
-
-### Static Ability data
-
-As above with unit_data, `Bot#ability_data(ability_id)` can provide information surrounding a specific ability.
 
 ### Tech tree 
 
@@ -900,7 +902,7 @@ class MyBot < Sc2::Player::Bot
     ))
     
     # Simplified with helper method action_raw_unit_command
-    api.action_raw_unit_command(unit_tags: hero_marine.tag, 
+    action_raw_unit_command(unit_tags: hero_marine.tag, 
                                 ability_id: Api::AbilityId::ATTACK, 
                                 target_unit_tag: #... 
     )
