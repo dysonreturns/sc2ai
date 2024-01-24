@@ -1,11 +1,13 @@
 require "thor"
 
 module Sc2
+  # Command line utilities
   class Cli < Thor
     package_name "Cli"
     map "-setup410" => :setup410
 
     desc "setup410", "downloads and install SC2 v4.10"
+    # downloads and install SC2 v4.10
     def setup410
       puts " "
       puts "This script sets up SC2 at version 4.10, which we use competitively."

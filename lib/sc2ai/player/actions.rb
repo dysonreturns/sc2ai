@@ -7,7 +7,7 @@ module Sc2
       #   @return [Array<Api::Action>]
       attr_accessor :action_queue
 
-      # Queues action for performing later
+      # Queues action for performing end of step
       # @param action [Api::Action]
       # @return [void]
       def queue_action(action)

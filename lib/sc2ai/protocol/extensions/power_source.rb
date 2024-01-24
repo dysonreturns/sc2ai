@@ -1,13 +1,9 @@
 module Api
   # Adds additional functionality to message object Api::PowerSource
   module PowerSourceExtension
-    def self.included(base)
-      super(base)
-      base.extend ClassMethods
-    end
-
     include Sc2::Position
 
+    # Adds additional functionality to message class Api::PowerSource
     module ClassMethods
       # Shorthand for creating an instance for [x, y, z]
       # @example
@@ -20,3 +16,4 @@ module Api
   end
 end
 Api::PowerSource.include Api::PowerSourceExtension
+Api::PowerSource.extend Api::PowerSourceExtension::ClassMethods

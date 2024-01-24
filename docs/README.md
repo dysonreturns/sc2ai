@@ -9,8 +9,10 @@ This Ruby language is also now available, free to play, at https://www.ruby-lang
 
 Mac (Apple® silicon / Intel®), Microsoft© Windows, WSL and Linux® are all supported. 
 
-## First rule - only tell the _cool_ nerds
-The things we write are called "bots". They beat crap out of eachother on https://aiarena.net.  
+You should read this file and then {file:docs/QUICK_REFERENCE.md proceed to the tutorials}.
+
+## I am Jack's digital fury
+The things we write are called "bots". They beat crap out of each other on https://aiarena.net.  
 There are [regular tournaments](https://www.youtube.com/@ProbotsAI) and a permanent live stream here https://www.twitch.tv/aiarenastream.
 
 That's right, you just stumbled upon the final boss of competitive coding. Welcome to Fight Club for Nerds, nerd.  
@@ -56,8 +58,8 @@ From Command Prompt:
 ### Get the gem
 
 #### Regarding Ruby versions
-Ruby 3.2.2 runs amazingly and all the profilers and debuggers work.  
-If you don't need to profile or debug, 3.3.0 performs even better.  
+If you have any issues with profiling or debugging, Ruby 3.2 runs amazingly.  
+Ruby 3.3 performs even better.  
 Enabling YJIT is essential as we repeat methods frequently. Pass the runtime arg `--yjit` or `export RUBY_YJIT_ENABLE=1`.  
 
 #### On to the gem
@@ -196,11 +198,11 @@ Sc2::Match.new(
 Congrats, you're botting!
 The replay is auto-saved as `data/replays/autosave-#{botname}.SC2Replay` for casual review.  
 
-If the code scares you, especially that nasty deep `game_info.start_raw.start_locations.first` part (yuck), fear not - it's an anomaly.   
-The syntax is quite friendly while also forcibly teaching you the API (by design).  
+If the code scares you, especially that `game_info.start_raw.start_locations.first` part, fear not.   
+The syntax is generally quite friendly while also forcibly teaching you the API.  
 We have some extremely useful tutorials ahead once you're done skimming the next two sections.
 
-## Competiting on the ladder
+## Competing on the ladder
 
 The dear ladder Admin have had their holiday consumed by moving the aiarena infrastructure to AWS.     
 Ruby support for the aiarena.net ladder will follow in 2024.  
@@ -248,7 +250,7 @@ Or even how is ANY OF THIS possible?
 Let's go through all of the above in byte sized chunks with the tutorials which follows.
 The README is over, but check out [Acknowledgements](#label-Acknowledgements) below which answers one of these questions.
 
-Onwards, {file:docs/TUTORIAL1_INFODUMP.md to the tutorials!}
+Onwards, {file:docs/QUICK_REFERENCE.md to the tutorials!}
 
 ## Development
 

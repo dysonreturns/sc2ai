@@ -27,7 +27,6 @@ module Sc2
       def join_game(race:, name:, server_host:, port_config:, enable_feature_layer: false, interface_options: {})
         interface_options ||= {}
 
-        # TODO: enable_feature_layer should be a bot Sc2::Config (yaml or block)
         default_crop_playable_area = true
         default_raw_affects_selection = false
 
@@ -148,12 +147,12 @@ module Sc2
         send_request_for leave_game: Api::RequestLeaveGame.new
       end
 
-      # Saves game to an in-memory bookmark. (Does not appear to do anything.)
+      # Saves game to an in-memory bookmark.
       def request_quick_save
         send_request_for quick_save: Api::RequestQuickSave.new
       end
 
-      # Loads from an in-memory bookmark. (Does not appear to do anything.)
+      # Loads from an in-memory bookmark.
       def request_quick_load
         send_request_for quick_load: Api::RequestQuickLoad.new
       end
@@ -308,7 +307,7 @@ module Sc2
         (arr_queries.size > 1) ? response.pathing : response.pathing.first
       end
 
-      # Queries one or more pathing queries
+      # Queries one or more ability-available checks
       # @param queries [Array<Api::RequestQueryAvailableAbilities>, Api::RequestQueryAvailableAbilities] one or more pathing queries
       # @param ignore_resource_requirements [Boolean] Ignores requirements like food, minerals and so on.
       # @return [Array<Api::ResponseQueryAvailableAbilities>, Api::ResponseQueryAvailableAbilities] one or more results depending on input size

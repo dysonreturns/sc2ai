@@ -47,7 +47,6 @@ rescue => e
   exit
 end
 
-
 # noinspection RubyMismatchedArgumentType
 Dir.glob(File.join(__dir__, "sc2ai", "overrides", "**", "*.rb")).each do |file|
   require(file)

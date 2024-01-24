@@ -73,7 +73,7 @@ module Sc2
       attr_accessor :event_structures_completed
 
       # Units and Structures which had their health/shields reduced since last frame
-      # Read this on_step. Alternative to callback on_unit_type_changed
+      # Read this on_step. Alternative to callback on_unit_damaged
       # @!attribute event_units_damaged
       #   @return [Sc2::UnitGroup] group of Units and Structures effected
       attr_accessor :event_units_damaged
@@ -130,97 +130,6 @@ module Sc2
           ug.add(@all_units[tag])
         end
         ug
-      end
-
-      # Protoss ------
-
-      # Draws a grid within a unit (pylon/prisms) radius, then selects points which are placeable
-      # @param source [Api::Unit] either a pylon or a prism
-      # @param unit_type_id [Api::Unit] optionally, the unit you wish to place. Stalkers are widest, so use default nil for a mixed composition warp
-      # @return [Array<Api::Point2D>] an array of 2d points where theoretically placeable
-      def warp_points(source:, unit_type_id: nil)
-        # power source needed
-        power_source = @power_sources.find { |ps| source.tag == ps.tag }
-        return [] if power_source.nil?
-
-        # hardcoded unit radius, otherwise only obtainable by owning a unit already
-        unit_type_id = Api::UnitTypeId::STALKER if unit_type_id.nil?
-        target_radius = case unit_type_id
-        when Api::UnitTypeId::STALKER
-          0.625
-        when Api::UnitTypeId::HIGHTEMPLAR, Api::UnitTypeId::DARKTEMPLAR
-          0.375
-        else
-          0.5 # Adept, zealot, sentry, etc.
-        end
-        unit_width = target_radius * 2
-
-        # power source's inner and outer radius
-        outer_radius = power_source.radius
-        # Can not spawn on-top of pylon
-        inner_radius = (source.unit_type == Api::UnitTypeId::PYLON) ? source.radius : 0
-
-        # Make a grid of circles packed in triangle formation, covering the power field
-        points = []
-        y_increment = Math.sqrt(Math.hypot(unit_width, unit_width / 2.0))
-        offset_row = false
-        # noinspection RubyMismatchedArgumentType # rbs fixed in future patch
-        ((source.pos.y - outer_radius + target_radius)..(source.pos.y + outer_radius - target_radius)).step(y_increment) do |y|
-          ((source.pos.x - outer_radius + target_radius)..(source.pos.x + outer_radius - target_radius)).step(unit_width) do |x|
-            x += target_radius if offset_row
-            points << Api::Point2D[x, y]
-          end
-          offset_row = !offset_row
-        end
-
-        # Select only grid points inside the outer source and outside the inner source
-        points.select! do |grid_point|
-          gp_distance = source.pos.distance_to(grid_point)
-          gp_distance > inner_radius + target_radius && gp_distance + target_radius < outer_radius
-        end
-
-        # Find X amount of near units within the radius and subtract their overlap in radius with points
-        # we arbitrarily decided that a pylon will no be surrounded by more than 50 units
-        # We add 2.75 above, which is the fattest ground unit (nexus @ 2.75 radius)
-        units_in_pylon_range = all_units.nearest_to(pos: source.pos, amount: 50)
-          .select_in_circle(point: source.pos, radius: outer_radius + 2.75)
-
-        # Reject warp points which overlap with units inside
-        points.reject! do |point|
-          # Find units which overlap with our warp points
-          units_in_pylon_range.find do |unit|
-            xd = (unit.pos.x - point.x).abs
-            yd = (unit.pos.y - point.y).abs
-            intersect_distance = target_radius + unit.radius
-            next false if xd > intersect_distance || yd > intersect_distance
-
-            Math.hypot(xd, yd) < intersect_distance
-          end
-        end
-
-        # Select only warp points which are on placeable tiles
-        points.reject! do |point|
-          left = (point.x - target_radius).floor.clamp(geo.map_tile_range_x)
-          right = (point.x + target_radius).floor.clamp(geo.map_tile_range_x)
-          top = (point.y + target_radius).floor.clamp(geo.map_tile_range_y)
-          bottom = (point.y - target_radius).floor.clamp(geo.map_tile_range_y)
-
-          unplaceable = false
-          x = left
-          while x <= right
-            break if unplaceable
-            y = bottom
-            while y <= top
-              unplaceable = !geo.placeable?(x: x, y: y)
-              break if unplaceable
-              y += 1
-            end
-            x += 1
-          end
-          unplaceable
-        end
-
-        points
       end
 
       # Geo/Map/Macro ------

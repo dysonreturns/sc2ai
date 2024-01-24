@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# WARNING! Debug methods will not be available on Ladder
 module Sc2
   class Player
+    # WARNING! Debug methods will not be available on Ladder
     # This provides debug helper functions for RequestDebug
     module Debug
       # Holds debug commands which will be queued off each time we step forward

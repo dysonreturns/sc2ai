@@ -96,6 +96,7 @@ module Sc2
         @expo_placement_grid
       end
 
+      # Returns a grid where powered locations are marked true
       def parsed_power_grid
         # Cache for based on power unit tags
         cache_key = bot.power_sources.map(&:tag).sort.hash
@@ -280,7 +281,7 @@ module Sc2
       # @param y [Float, Integer]
       # @return [Integer] 0=Hidden,1= Snapshot,2=Visible
       def visibility(x:, y:)
-        parsed_visiblity_grid[y.to_i, x.to_i]
+        parsed_visibility_grid[y.to_i, x.to_i]
       end
 
       # Returns whether the point (tile) is currently in vision
@@ -308,10 +309,10 @@ module Sc2
       end
 
       # Returns a parsed map_state.visibility from bot.observation.raw_data.
-      # Each value in [row][column] holds a float value which is the z height
+      # Each value in [row][column] holds one of three integers (0,1,2) to flag a vision type
       # @see #visibility for reading from this value
       # @return [Numo::SFloat] Numo array
-      def parsed_visiblity_grid
+      def parsed_visibility_grid
         if @parsed_visibility_grid.nil?
           image_data = bot.observation.raw_data.map_state.visibility
           @parsed_visibility_grid = ::Numo::UInt8.from_binary(image_data.data,
@@ -320,7 +321,7 @@ module Sc2
         @parsed_visibility_grid
       end
 
-      # Returns whether a x/y block has creep on it, as per minimap
+      # Returns whether a tile has creep on it, as per minimap
       # One pixel covers one whole block. Corrects float inputs on your behalf.
       # @param x [Float, Integer]
       # @param y [Float, Integer]
@@ -401,11 +402,11 @@ module Sc2
       # Gets expos and surrounding minerals
       # The index is a build location for an expo and the value is a UnitGroup, which has minerals and geysers
       # @example
-      #   random_expo = expansions.keys.sample #=> Point2d
+      #   random_expo = expansions.keys.sample #=> Point2D
       #   expo_resources = geo.expansions[random_expo] #=> UnitGroup
       #   alive_minerals = expo_resources.minerals - neutral.minerals
       #   geysers = expo_resources.geysers
-      # @return [Hash<Api::Point2D], UnitGroup] Location => UniGroup of resources (minerals+geysers)
+      # @return [Hash<Api::Point2D, UnitGroup>] Location => UnitGroup of resources (minerals+geysers)
       def expansions
         return @expansions unless @expansions.nil?
 
@@ -508,7 +509,7 @@ module Sc2
       #   # What minerals/geysers does it have?
       #   puts expansions_unoccupied[expo_pos].minerals # or expansions[expo_pos]... => UnitGroup
       #   puts expansions_unoccupied[expo_pos].geysers # or expansions[expo_pos]... => UnitGroup
-      # @return [Hash<Api::Point2D], UnitGroup] Location => UniGroup of resources (minerals+geysers)
+      # @return [Hash<Api::Point2D], UnitGroup] Location => UnitGroup of resources (minerals+geysers)
       def expansions_unoccupied
         taken_bases = bot.structures.hq.map { |hq| hq.pos.to_p2d } + bot.enemy.structures.hq.map { |hq| hq.pos.to_p2d }
         remaining_points = expansion_points - taken_bases
@@ -600,6 +601,98 @@ module Sc2
         return nil if nearest.nil?
 
         coordinates[nearest.sample].to_p2d
+      end
+
+
+      # Protoss ------
+
+      # Draws a grid within a unit (pylon/prisms) radius, then selects points which are placeable
+      # @param source [Api::Unit] either a pylon or a prism
+      # @param unit_type_id [Api::Unit] optionally, the unit you wish to place. Stalkers are widest, so use default nil for a mixed composition warp
+      # @return [Array<Api::Point2D>] an array of 2d points where theoretically placeable
+      def warp_points(source:, unit_type_id: nil)
+        # power source needed
+        power_source = bot.power_sources.find { |ps| source.tag == ps.tag }
+        return [] if power_source.nil?
+
+        # hardcoded unit radius, otherwise only obtainable by owning a unit already
+        unit_type_id = Api::UnitTypeId::STALKER if unit_type_id.nil?
+        target_radius = case unit_type_id
+                        when Api::UnitTypeId::STALKER
+                          0.625
+                        when Api::UnitTypeId::HIGHTEMPLAR, Api::UnitTypeId::DARKTEMPLAR
+                          0.375
+                        else
+                          0.5 # Adept, zealot, sentry, etc.
+                        end
+        unit_width = target_radius * 2
+
+        # power source's inner and outer radius
+        outer_radius = power_source.radius
+        # Can not spawn on-top of pylon
+        inner_radius = (source.unit_type == Api::UnitTypeId::PYLON) ? source.radius : 0
+
+        # Make a grid of circles packed in triangle formation, covering the power field
+        points = []
+        y_increment = Math.sqrt(Math.hypot(unit_width, unit_width / 2.0))
+        offset_row = false
+        # noinspection RubyMismatchedArgumentType # rbs fixed in future patch
+        ((source.pos.y - outer_radius + target_radius)..(source.pos.y + outer_radius - target_radius)).step(y_increment) do |y|
+          ((source.pos.x - outer_radius + target_radius)..(source.pos.x + outer_radius - target_radius)).step(unit_width) do |x|
+            x += target_radius if offset_row
+            points << Api::Point2D[x, y]
+          end
+          offset_row = !offset_row
+        end
+
+        # Select only grid points inside the outer source and outside the inner source
+        points.select! do |grid_point|
+          gp_distance = source.pos.distance_to(grid_point)
+          gp_distance > inner_radius + target_radius && gp_distance + target_radius < outer_radius
+        end
+
+        # Find X amount of near units within the radius and subtract their overlap in radius with points
+        # we arbitrarily decided that a pylon will no be surrounded by more than 50 units
+        # We add 2.75 above, which is the fattest ground unit (nexus @ 2.75 radius)
+        units_in_pylon_range = bot.all_units.nearest_to(pos: source.pos, amount: 50)
+                                        .select_in_circle(point: source.pos, radius: outer_radius + 2.75)
+
+        # Reject warp points which overlap with units inside
+        points.reject! do |point|
+          # Find units which overlap with our warp points
+          units_in_pylon_range.find do |unit|
+            xd = (unit.pos.x - point.x).abs
+            yd = (unit.pos.y - point.y).abs
+            intersect_distance = target_radius + unit.radius
+            next false if xd > intersect_distance || yd > intersect_distance
+
+            Math.hypot(xd, yd) < intersect_distance
+          end
+        end
+
+        # Select only warp points which are on placeable tiles
+        points.reject! do |point|
+          left = (point.x - target_radius).floor.clamp(map_tile_range_x)
+          right = (point.x + target_radius).floor.clamp(map_tile_range_x)
+          top = (point.y + target_radius).floor.clamp(map_tile_range_y)
+          bottom = (point.y - target_radius).floor.clamp(map_tile_range_y)
+
+          unplaceable = false
+          x = left
+          while x <= right
+            break if unplaceable
+            y = bottom
+            while y <= top
+              unplaceable = !placeable?(x: x, y: y)
+              break if unplaceable
+              y += 1
+            end
+            x += 1
+          end
+          unplaceable
+        end
+
+        points
       end
 
       # Geometry helpers  ---

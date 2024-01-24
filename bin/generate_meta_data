@@ -56,7 +56,7 @@ module GenerateMetaData
       raise "Error: const value not found (#{klass}, #{value})"
     end
 
-    # Helper for generating AbilitId from stableid json
+    # Helper for generating AbilityId from stableid json
     def ability_constants(data)
       result = {}
       data.each do |row|

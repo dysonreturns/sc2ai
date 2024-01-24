@@ -1,23 +1,16 @@
-# This class was partially generated with the help of AI.
-
 module Api
   # Adds additional functionality to message object Api::Point2D
   module Point2DExtension
-    def self.included(base)
-      super(base)
-      base.extend ClassMethods
-    end
-
+    # @private
     def hash
       [x, y].hash
     end
 
     def eql?(other)
-      # This is faster, but intolerant. Consider changing to method below it
       self.class == other.class && hash == other.hash
-      # self.class == other.class && ((x - other.x).abs < TOLERANCE) && ((y - other.y).abs < TOLERANCE)
     end
 
+    # Adds additional functionality to message class Api::Point2D
     module ClassMethods
       # Shorthand for creating an instance for [x, y]
       # @example
@@ -30,3 +23,4 @@ module Api
   end
 end
 Api::Point2D.include Api::Point2DExtension
+Api::Point2D.extend Api::Point2DExtension::ClassMethods

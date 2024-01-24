@@ -1,3 +1,4 @@
+# Array extensions
 class Array
   # Turns an Array of Api::Unit into a Sc2::UnitGroup
   # @return [Sc2::UnitGroup] array converted to a unit group

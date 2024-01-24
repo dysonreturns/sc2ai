@@ -9,6 +9,7 @@ module Sc2
       attr_accessor :status
 
       include Connection::StatusListener
+      # Callback when game status changes
       def on_status_change(status)
         self.status = status
       end
