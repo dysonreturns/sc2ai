@@ -40,6 +40,16 @@ module Sc2
     #   @return [Integer] number of frames to step in step-mode, default 1
     attr_accessor :step_count
 
+    # @!attribute enable_feature_layer
+    #   Enables the feature layer at 1x1 pixels. Adds additional actions (UI and Spatial) at the cost of overall performance.
+    #   Must be configured before #join_game
+    #   @return [Boolean]
+    attr_accessor :enable_feature_layer
+
+    # @see #join_game for options
+    # @return [Hash]
+    attr_accessor :interface_options
+
     # @return [Api::Race::NoRace] if Observer
     # @return [Api::Race::Terran] if is_a? Bot, Human, BotProcess
     # @return [Api::Race::Zerg] if is_a? Bot, Human, BotProcess
@@ -63,6 +73,9 @@ module Sc2
     # @see Api::AIBuild proto for options
     attr_accessor :ai_build
 
+    # @return [String] ladder matches will set an opponent id
+    attr_accessor :opponent_id
+
     # @param race [Integer] see {Api::Race}
     # @param name [String]
     # @param type [Integer] see {Api::PlayerType}
@@ -85,6 +98,9 @@ module Sc2
       @ai_build = ai_build
       @realtime = false
       @step_count = 1
+
+      @enable_feature_layer = false
+      @interface_options = {}
     end
 
     # Connection --------------------
@@ -133,10 +149,14 @@ module Sc2
 
     # @param server_host [String] ip address
     # @param port_config [Sc2::PortConfig]
-    # @param interface_options [Hash]
-    def join_game(server_host:, port_config:, enable_feature_layer:, interface_options: {})
+    def join_game(server_host:, port_config:)
       Sc2.logger.debug { "Player \"#{@name}\" joining game..." }
-      @api.join_game(name: @name, race: @race, server_host:, port_config:, enable_feature_layer:, interface_options:) # , enable_feature_layer: false)
+      response = @api.join_game(name: @name, race: @race, server_host:, port_config:, enable_feature_layer: @enable_feature_layer, interface_options: @interface_options)
+      if !response.error.nil? && response.error != :MissingParticipation
+        raise Sc2::Error, "Player \"#{@name}\" join_game failed: #{response.error}"
+      end
+      add_listener(self, klass: Connection::StatusListener)
+      response
     end
 
     # Multiplayer only. Disconnects from a multiplayer game, equivalent to surrender. Keeps client alive.
@@ -157,7 +177,7 @@ module Sc2
     class Bot < Player
       include Units
       include Actions
-      include Debug # unless IS_LADDER?
+      include Debug
 
       # @!attribute enemy
       #   @return [Sc2::Player::Enemy]
@@ -175,7 +195,22 @@ module Sc2
         super(race:, name:, type: Api::PlayerType::Participant, difficulty: nil, ai_build: nil)
         @previous = Sc2::Player::PreviousState.new
         @geo = Sc2::Player::Geometry.new(self)
+
+        configure
       end
+
+      # Override to customize initialization
+      # Alias of before_join
+      # You can enable_feature_layer=true, set step_size, define
+      # @example
+      #   def configure
+      #     step_count = 4 # Update less frequently
+      #     enable_feature_layer = true
+      #
+      #   end
+      def configure
+      end
+      alias_method :before_join, :configure
 
       # TODO: If this suffices for Bot and Observer, they should share this code.
       # Initializes and refreshes game data and runs the game loop
@@ -380,17 +415,6 @@ module Sc2
         end
       end
     end
-
-    # @todo
-    # TODO: Figure out a nice way to launch with community options or provide launch string:
-    # +path: Union[str, Path],
-    # +launch_list: List[str],
-    # +sc2port_arg="--GamePort",
-    # +host_address_arg="--LadderServer",
-    # +match_arg="--StartPort",
-    # +realtime_arg="--RealTime",
-    # +other_args: str = None,
-    # +stdout: str = None,
 
     # @private
     # Launches an external bot, such as a python practice partner by triggering an exteral executable.

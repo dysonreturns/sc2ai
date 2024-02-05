@@ -1,0 +1,6 @@
+# This file should require your bot and create a $bot.
+# You are free to rename your bot class, name or restructure your code as long
+# as $bot is created correctly. if not, your ladder bot will break.
+
+require_relative "<%= @bot_file %>"
+$bot = <%= @classname %>.new(name: "<%= @botname %>", race: Api::Race::<%= @race %>)

@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  bot:
+    image: dysonreturns/aiarena-ruby-builder:latest
+    environment:
+      - CPPFLAGS=-DPNG_ARM_NEON_OPT=0
+    platform: "linux/amd64"
+    tty: true
+

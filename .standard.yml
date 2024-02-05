@@ -2,6 +2,7 @@ ruby_version: 3.3
 
 ignore:                 # default: []
   - 'data/**/*'
+  - 'lib/docker_build/**/*'
   # Testing by hand
   - 'outside_*.rb'
   - 'test/**/*'

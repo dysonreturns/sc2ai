@@ -24,15 +24,21 @@ module Sc2
       end
 
       # Send to host and all clients for game to begin.
+      # @param race [Google::Protobuf::EnumValue] Api::Race
+      # @param name [String] player name
+      # @param server_host [String] hostname or ip of sc2 client
+      # @param port_config [Sc2::PortConfig] port config auto or basic, using start port
+      # @param enable_feature_layer [Boolean] Enables the feature layer at 1x1 pixels
+      # @param interface_options [Hash]
+      # @option interface_options [Boolean] :raw (true) raw interface enabled, default true
+      # @option interface_options [Boolean] :score (false) score game info
+      # @option interface_options [Boolean] :show_cloaked (true) hows details about cloaked units
+      # @option interface_options [Boolean] :show_burrowed_shadows (true) shows some details for those that produce a shadow
+      # @option interface_options [Boolean] :show_placeholders (true) return placeholder units (buildings to be constructed)
+      # @option interface_options [Boolean] :raw_affects_selection (false) for live raw does whatever it wants, for local it keeps your selection by default.
+      # @option interface_options [Boolean] :raw_crop_to_playable_area (true) trims away unplayable parts of map, else map is 255x255 with dead space. performant if true.
       def join_game(race:, name:, server_host:, port_config:, enable_feature_layer: false, interface_options: {})
         interface_options ||= {}
-
-        default_crop_playable_area = true
-        default_raw_affects_selection = false
-
-        # TODO: if is_live? # perform these actions only LIVE
-        #   default_raw_affects_selection = true
-        #   default_crop_playable_area = true
 
         send_request_for join_game: Api::RequestJoinGame.new(
           # TODO: For Observer support, get player_index for observer,
@@ -52,8 +58,8 @@ module Sc2
               show_cloaked: true,
               show_burrowed_shadows: true,
               show_placeholders: true,
-              raw_affects_selection: default_raw_affects_selection,
-              raw_crop_to_playable_area: default_crop_playable_area
+              raw_affects_selection: Sc2.ladder?,
+              raw_crop_to_playable_area: true
             }.merge!(interface_options)
           )
         )
@@ -95,7 +101,7 @@ module Sc2
       #     observer = Sc2::Player::Observer.new
       #     observer.connect(host: client.host, port: client.port)
       #     pp observer.api.start_replay(
-      #       replay_path: Pathname("./data/replays/test.SC2Replay").realpath
+      #       replay_path: Pathname("./replays/test.SC2Replay").realpath
       #     )
       #     while observer.status == :in_replay
       #       #   Step forward
@@ -273,7 +279,6 @@ module Sc2
       # Advances the game simulation by step_count. Not used in realtime mode.
       # Only constant step size supported - subsequent requests use cache.
       def step(step_count = 1)
-        # if step_count == @_last_step_count
         @_cached_request_step ||= Api::Request.new(
           step: Api::RequestStep.new(count: step_count)
         ).to_proto

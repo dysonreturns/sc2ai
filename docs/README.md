@@ -46,7 +46,7 @@ The gem, however, needs some linear algebra for heavy lifting in the form of Ope
 `brew install openblas`
 
 **Debian/Ubuntu and WSL2**  
-`apt install libblas3 liblapacke`
+`apt install libopenblas0`
 
 **Windows**  
 From Command Prompt:  
@@ -196,7 +196,7 @@ Sc2::Match.new(
 ```
 
 Congrats, you're botting!
-The replay is auto-saved as `data/replays/autosave-#{botname}.SC2Replay` for casual review.  
+The replay is auto-saved as `replays/autosave-#{botname}.SC2Replay` for casual review.  
 
 If the code scares you, especially that `game_info.start_raw.start_locations.first` part, fear not.   
 The syntax is generally quite friendly while also forcibly teaching you the API.  
