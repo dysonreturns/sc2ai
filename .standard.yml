@@ -3,6 +3,7 @@ ruby_version: 3.3
 ignore:                 # default: []
   - 'data/**/*'
   - 'lib/docker_build/**/*'
+  - 'lib/sc2ai/overrides/async/**/*'
   # Testing by hand
   - 'outside_*.rb'
   - 'test/**/*'

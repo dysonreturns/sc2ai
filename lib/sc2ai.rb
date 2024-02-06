@@ -60,7 +60,7 @@ Dir[File.join(__dir__, "sc2ai", "protocol", "extensions", "**", "*.rb")].each { 
 # noinspection RubyMismatchedArgumentType
 Dir[File.join(__dir__, "sc2ai", "local_play", "**", "*.rb")].each { |file| require(file) }
 
-# Facilitates creating and running Starcraft 2 AI instances.
+# Facilitates StarCraft 2 AI
 module Sc2
   # Generic, single error for everything Sc2
   class Error < StandardError; end

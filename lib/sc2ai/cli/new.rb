@@ -1,3 +1,5 @@
+require "sc2ai/paths"
+
 module Sc2
   # Command line utilities
   class Cli < Thor
@@ -10,7 +12,7 @@ module Sc2
       argument :race, required: true, desc: "Choose a race", enum: %w[Terran Zerg Protoss Random]
 
       def self.source_root
-        Paths.template_root.to_s
+        Sc2::Paths.template_root.to_s
       end
 
       def checkname

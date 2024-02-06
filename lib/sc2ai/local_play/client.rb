@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "async/process"
 require_relative "client/configurable_options"
 
 module Sc2

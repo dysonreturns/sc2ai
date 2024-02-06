@@ -10,5 +10,5 @@ Sc2::Match.new(
     $bot,
     Sc2::Player::Computer.new(race: Api::Race::Random, difficulty: Api::Difficulty::VeryEasy)
   ],
-  map: "Equilibrium512AIE" # Or any of the downloaded map names
+  map: "Goldenaura512AIE" # Or any of the downloaded map names
 ).run

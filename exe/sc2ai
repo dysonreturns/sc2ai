@@ -4,7 +4,6 @@
 # require "pathname"
 # $LOAD_PATH.unshift(Pathname(File.dirname(__FILE__)).parent.join("lib").expand_path.to_s)
 
-require "sc2ai"
 require "sc2ai/cli/cli"
 
 # This got old quickly.

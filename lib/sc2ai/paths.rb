@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "tmpdir"
+require "pathname"
 
 module Sc2
   # Helps determine common paths to sc2 install dir, executable and maps.
