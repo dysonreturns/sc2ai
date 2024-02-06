@@ -146,7 +146,7 @@ Sc2::Match.new(
     MyBot.new(name: "StalkerExample", race: Api::Race::Protoss),
     Sc2::Player::Computer.new(race: Api::Race::Random, difficulty: Api::Difficulty::VeryEasy)
   ],
-  map: "GoldenauraAIE"
+  map: "Goldenaura512AIE"
 ).run
 
 ```
