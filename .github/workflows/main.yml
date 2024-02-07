@@ -37,7 +37,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - name: Install OS dependencies
-        run: sudo apt-get install -y libblas3 liblapacke
+        run: sudo apt-get install -y libopenblas0
 
       - name: Bundle install
         run: bundle install
