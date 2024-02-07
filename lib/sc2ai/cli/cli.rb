@@ -91,6 +91,7 @@ module Sc2
 
     desc "ladderconfig", "Prints out how you're configured for the ladder."
     def ladderconfig
+      require "sc2ai"
       unless Pathname("./boot.rb").exist?
         raise Sc2::Error, "boot.rb not found. Bot started from wrong directory."
       end
@@ -131,6 +132,8 @@ module Sc2
     option :OpponentId, desc: "Unique identifier"
     option :RealTime, type: :boolean, default: false, desc: "Forces realtime flag"
     def laddermatch
+      require "sc2ai"
+      
       unless Sc2.ladder?
         raise Sc2::Error, "This command is only for competing on aiarena.net"
       end

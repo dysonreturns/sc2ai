@@ -50,16 +50,20 @@ RUN rm ./libgfortran5*.deb
 
 RUN /root/ruby-builder/.ruby/bin/ruby --yjit -v
 
+ENV PATH "/root/ruby-builder/.ruby/bin:$PATH"
+RUN gem install 'sc2ai'
+
+#RUN apt remove --assume-yes rustc curl build-essential libssl-dev zlib1g-dev libgmp-dev uuid-dev
+
 FROM debian:12-slim
 COPY --from=build /root/ruby-builder /root/ruby-builder
 
 RUN /root/ruby-builder/.ruby/bin/ruby --yjit -v
 
-#RUN apt remove --assume-yes rustc curl build-essential libssl-dev zlib1g-dev libgmp-dev uuid-dev
 RUN apt-get update
 RUN apt-get purge $(aptitude search '~i!~M!~prequired!~pimportant!~R~prequired!~R~R~prequired!~R~pimportant!~R~R~pimportant!busybox!grub!initramfs-tools' | awk '{print $2}')  --assume-yes
 RUN apt-get purge aptitude  --assume-yes
-RUN apt install zip openssl --assume-yes
+RUN apt-get install zip openssl build-essential libopenblas0-serial --assume-yes
 RUN apt-get autoremove --assume-yes
 RUN apt-get clean --assume-yes
 
