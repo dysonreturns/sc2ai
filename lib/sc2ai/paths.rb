@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "tmpdir"
+require "pathname"
 
 module Sc2
   # Helps determine common paths to sc2 install dir, executable and maps.
@@ -180,10 +181,10 @@ module Sc2
       end
 
       # Returns the local replay folder
-      # For local play, your replay filse are saved to ./data/replays
-      # @return [String] path to ./data/replays
+      # For local play, your replay filse are saved to ./replays
+      # @return [String] path to ./replays
       def bot_data_replay_dir
-        dir = Pathname(bot_data_dir).join("replays")
+        dir = Pathname("./replays")
         dir.mkdir unless dir.exist?
         dir.to_s
       end
@@ -193,6 +194,13 @@ module Sc2
       # @return [Pathname] path to gem folder which contains lib/,data/,etc.
       def gem_root
         Pathname.new(__dir__.to_s).parent.parent.expand_path
+      end
+
+      # @private
+      # Directory of template folders
+      # @return [Pathname] path to where template directories live, i.e. "new" and "ladder"
+      def template_root
+        Pathname.new(__dir__.to_s).parent.join("templates").expand_path
       end
 
       # @private

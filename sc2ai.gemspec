@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.unshift(File.expand_path("lib"))
+$LOAD_PATH.unshift(File.expand_path("./lib"))
 require_relative "lib/sc2ai/version"
-
-# require "pp" # Fixes fakefs during specs for some reason. see fakefs github.
 
 Gem::Specification.new do |spec|
   spec.name = "sc2ai"
@@ -45,11 +43,13 @@ Gem::Specification.new do |spec|
 
   # Geometry
   spec.add_dependency "perfect-shape", "1.0.8"
-  spec.add_dependency "kdtree", "0.4"
 
   spec.add_dependency "numo-narray", "0.9.2.1"
   spec.add_dependency "numo-linalg", "0.1.7"
   spec.add_dependency "rumale", "0.28.1"
+
+  # TODO: Find a way to not depend on a patched gem and yank this
+  spec.add_dependency "sc2ai-kdtree", "~> 0.4"
 
   # Pre-packaged ladder dependencies
   # We add these locally, so that authors know what to use

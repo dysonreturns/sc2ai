@@ -1,0 +1,20 @@
+# SC2 artifacts
+**/replays/*
+*.SC2Replay
+*.SC2Map
+*.proto
+*.zip
+
+
+# Gem-specific ignores
+.build/
+data/debug_observation.json
+
+# Other
+.idea/
+vendor/bundle
+spec/
+test/
+
+# My ignores
+

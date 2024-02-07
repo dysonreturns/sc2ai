@@ -63,8 +63,7 @@ Gemfile.lock
 
 
 # Library specific excludes
-/data/replays/autosave*.SC2Replay
+/replays/*.SC2Replay
 /data/debug_observation.json
-/*.gem
 /test/
 /sc2ai.yml

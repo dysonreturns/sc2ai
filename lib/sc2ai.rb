@@ -1,45 +1,38 @@
 # frozen_string_literal: true
 
+# TODO: MOVE RUBY_GC_* to load into shell ENV, because they apparently can't be set at runtime.
+# Arbitrary very large numbers which should not be reached
 # RUBY_GC_MALLOC_LIMIT=128000000000;
 # RUBY_GC_OLDMALLOC_LIMIT=128000000000;
 # RUBY_GC_OLDMALLOC_LIMIT_MAX=128000000000;
 # RUBY_GC_HEAP_INIT_SLOTS=329375
 
-# GC tuning.
-GC.disable
-# TODO: MOVE RUBY_GC_* to load into shell ENV, because they apparently can't be set at runtime.
-# Arbitrary very large numbers which should not be reached
-# ENV['RUBY_GC_OLDMALLOC_LIMIT'] = "128000000000"
-# ENV['RUBY_GC_OLDMALLOC_LIMIT_MAX'] = "128000000000"
-
-# Preallocate slightly over observed GC stats
-# Ruby 3.3
-# TODO: Check if these vars can be set at runtime when moving to 3.3 or move to a runner.
-# TODO: Benchmark extremely long filled map and re-adjust. These are medium sized game and can be 2-10x'd.
-ENV["RUBY_GC_HEAP_INIT_SIZE_40_SLOTS"] = "170000"
-ENV["RUBY_GC_HEAP_INIT_SIZE_80_SLOTS"] = "25000"
-ENV["RUBY_GC_HEAP_INIT_SIZE_160_SLOTS"] = "9000"
-ENV["RUBY_GC_HEAP_INIT_SIZE_320_SLOTS"] = "1000"
-ENV["RUBY_GC_HEAP_INIT_SIZE_640_SLOTS"] = "500"
-
-GC.enable
-GC.start
 # In the event major runs, let it compact
 GC.auto_compact = true
 
-# For Numo linear algebra, fix paths for specific macOS's
-if ENV["LD_LIBRARY_PATH"].nil?
-  ENV["LD_LIBRARY_PATH"] = "/opt/homebrew/opt/lapack/lib:/opt/homebrew/opt/openblas/lib"
+# For Numo linear algebra, fix paths for specific macOS's and on ladder
+library_paths = if ENV["LD_LIBRARY_PATH"].nil?
+  []
 else
-  ENV["LD_LIBRARY_PATH"] += ":/opt/homebrew/opt/lapack/lib:/opt/homebrew/opt/openblas/lib"
+  ENV["LD_LIBRARY_PATH"].split(":")
 end
+library_paths << [
+  # MacOS
+  "/opt/homebrew/opt/lapack/lib",
+  "/opt/homebrew/opt/lapack/lib",
+  "/opt/homebrew/opt/openblas/lib",
+  # Ladder deploy
+  RbConfig::CONFIG["libdir"]
+]
+ENV["LD_LIBRARY_PATH"] = library_paths.compact.join(":")
+
 begin
   require "numo/linalg/autoloader"
 rescue => e
   puts "Error from numo-linalg: #{e}"
   puts "Lets get some linear algebra on your system..."
   puts 'Mac: "brew install openblas"'
-  puts 'Debian/Ubuntu and WSL2: "apt install libblas3 liblapacke"'
+  puts 'Debian/Ubuntu and WSL2: "apt install libopenblas0"'
   if Gem.win_platform?
     puts 'Windows: from CMD "ridk enable & pacman -S mingw-w64-ucrt-x86_64-openblas --noconfirm".'
   end
@@ -67,7 +60,7 @@ Dir[File.join(__dir__, "sc2ai", "protocol", "extensions", "**", "*.rb")].each { 
 # noinspection RubyMismatchedArgumentType
 Dir[File.join(__dir__, "sc2ai", "local_play", "**", "*.rb")].each { |file| require(file) }
 
-# Facilitates creating and running Starcraft 2 AI instances.
+# Facilitates StarCraft 2 AI
 module Sc2
   # Generic, single error for everything Sc2
   class Error < StandardError; end
@@ -96,6 +89,12 @@ module Sc2
       @logger = Logger.new($stdout)
       @logger.level = :debug
       @logger
+    end
+
+    # Returns whether we are on the ladder or not
+    # @return [Boolean]
+    def ladder?
+      @is_live ||= ENV.has_key?("AIARENA")
     end
   end
 end

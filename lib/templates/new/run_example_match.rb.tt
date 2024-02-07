@@ -1,0 +1,14 @@
+# Use the ladder's boot.rb file and configure there
+require "./boot.rb"
+
+# Or simply, create by hand
+#my_bot = MyBot.new(name: "Botname", race: Api::Race::Random)
+
+# Start a match
+Sc2::Match.new(
+  players: [
+    $bot,
+    Sc2::Player::Computer.new(race: Api::Race::Random, difficulty: Api::Difficulty::VeryEasy)
+  ],
+  map: "Goldenaura512AIE" # Or any of the downloaded map names
+).run

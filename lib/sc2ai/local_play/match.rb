@@ -72,11 +72,8 @@ module Sc2
           run_task.async do
             player.join_game(
               server_host: ClientManager.get(player_index).host,
-              port_config:,
-              enable_feature_layer: Sc2.config.enable_feature_layer
+              port_config:
             )
-
-            player.add_listener(self, klass: Connection::StatusListener)
 
             result = player.play
             Sc2.logger.debug { "Player(#{player_index}) Result: #{result}" }

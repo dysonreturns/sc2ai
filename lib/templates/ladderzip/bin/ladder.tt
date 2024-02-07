@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Ladder startup
+
+# Sets Ruby path to local folder, env vars and
+base_dir=$(realpath ${0%/*}/)
+ruby_dir=$base_dir/.ruby
+export PATH=$ruby_dir/bin:$PATH
+export LD_LIBRARY_PATH=$(ruby -e 'puts RbConfig::CONFIG["libdir"]')
+
+# Conservative heap sizes are based on 2x a tested medium-sized game
+export RUBY_GC_HEAP_INIT_SIZE_40_SLOTS=340000
+export RUBY_GC_HEAP_INIT_SIZE_80_SLOTS=50000
+export RUBY_GC_HEAP_INIT_SIZE_160_SLOTS=18000
+export RUBY_GC_HEAP_INIT_SIZE_320_SLOTS=2000
+export RUBY_GC_HEAP_INIT_SIZE_640_SLOTS=1000
+
+# Maxime <3
+export RUBY_YJIT_ENABLE=true
+
+export AIARENA=true
+sc2ai ladderconfig
+exec sc2ai laddermatch "$@" 1>&2

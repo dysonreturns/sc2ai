@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+# Builds image used in ladderzip
+
+puts "This command builds the base image with semi-portable ruby for the server."
+require "pathname"
+
+compose_file = Pathname(__FILE__).parent.parent
+                                 .join("lib", "docker_build", "docker-compose-base-image.yml")
+                                 .expand_path
+cmd = "docker compose --progress=plain -f #{compose_file.to_s} build"
+puts cmd
+Kernel.exec(cmd)
+
+puts "Ruby can be found in the image at: /root/ruby-builder/.ruby"
+
+# If you need to use the ruby on the container,
+# export PATH=/root/ruby-builder/.ruby/bin:$PATH
+# To allow access to ruby/bunder/etc.
+# Or simply execute a ruby command directly: /root/ruby-builder/.ruby/bin/ruby -v

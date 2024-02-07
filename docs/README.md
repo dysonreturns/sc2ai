@@ -46,7 +46,7 @@ The gem, however, needs some linear algebra for heavy lifting in the form of Ope
 `brew install openblas`
 
 **Debian/Ubuntu and WSL2**  
-`apt install libblas3 liblapacke`
+`apt install libopenblas0`
 
 **Windows**  
 From Command Prompt:  
@@ -63,30 +63,51 @@ Ruby 3.3 performs even better.
 Enabling YJIT is essential as we repeat methods frequently. Pass the runtime arg `--yjit` or `export RUBY_YJIT_ENABLE=1`.  
 
 #### On to the gem
-Until further notice, this gem is not on rubygems. It's a hidden gem.  
 
-    $ bundle init 
-
-and add this line to your Gemfile:
-```ruby
-gem 'sc2ai', git: 'https://github.com/dysonreturns/sc2ai'
+```bash
+gem install 'sc2ai'
 ```
 
-**Windows-only**, you'll need patched gems too:
-```ruby
-gem "kdtree", git: "https://github.com/dysonreturns/kdtree.git", branch: "master"
-gem "async-process", git: "https://github.com/dysonreturns/async-process.git", branch: "windows-pgroup-params"
-gem 'sc2ai', git: 'https://github.com/dysonreturns/sc2ai'
+#### Create a new project
+
+Let's create a new bot project folder. Execute from the command line:
+```bash
+sc2ai new BOTNAME RACE
 ```
 
-And then execute:
+`BOTNAME`: In choosing your botname, remember that this name will be both a class and an executable. No spaces and don't start with a number. Any case is acceptable, `myBot123`, `myBot123`,  `my_bot_123`, etc.   
 
-    $ bundle install
+`RACE`:
 
-We depend on [rumale](https://github.com/yoshoku/rumale) by happenstance, so if you're keen to play with machine learning in Ruby, you have the option.  
-You will have more success (and fun), however, getting your hands dirty.
+- Terran: Human. Tactical, resourceful, harnessing mechanical assault.  
+- Zerg: Swarm of alien creatures, overwhelming numbers, biological warfare.  
+- Protoss: Advanced alien race, psionic powers, sophisticated technology, honorable warriors.  
+- Random: One of the above at random.  
 
-If you're **not** running Windows, WSL or full Linux, we are ready to launch. 
+**Example:**
+```bash
+sc2ai new myCleverBot Terran
+```
+This creates a bot called `MyCleverBot` in the folder `mycleverbot`.
+```bash
+cd mycleverbot && bundle install
+```
+
+Lets inspect this folder:
+
+| File/Folder          | Notes                                                                                                                      |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------|
+| api/                 | Api definitions. No purpose and just for reference. <br> Deletable, but inspect the .proto files inside for your own gain. |
+| my_clever_bot.rb     | All we actually really need to run.                                                                                        |
+| run_example_match.rb | An example local match, will run this soon.                                                                                |
+| boot.rb              | Ladder: Requires "my_clever_bot" and sets $bot = MyCleverBot.new(...)                                                      |
+| .ladderignore        | Ladder: Ignored files when uploading to aiarena                                                                            |
+| Gemfile              |                                                                                                                            |
+| Gemfile.lock         |                                                                                                                            |
+
+We are almost there, but we need the game client configured.
+
+If you're **not** running Windows, WSL or full Linux, we are ready to launch.
 Skip to [Configure StarCraft® II](#label-Configure+StarCraft-C2-AE+II)
 
 
@@ -124,6 +145,8 @@ You can manually set your client PATH and the detected PlatForm with environment
 `ENV['SC2PATH']` can be set manually to Starcraft 2 base directory for Linux, if using Lutris. This is the folder which contains the "Versions" folder.  
 `ENV['SC2PF']` can and should be manually set to "WineLinux" when running Wine
 
+You can set these in boot.rb or anywhere before launching a Match.  
+
 Additional options which are useful for Linux can be set via {Sc2::Configuration}.
 
 ### Configure StarCraft® II
@@ -159,19 +182,16 @@ Sc2.config do |config|
     config.version = "4.10"
 end
 ```
-## Running a Match
+## Running your first Match
 
 The Hello World of botting is a worker rush.  
-You're invited to create `hello_world.rb`, paste the code inside and execute it via   
-`bundle exec ruby --yjit hello_world.rb `
+Given the example above, lets inspect the created bot file `my_clever_bot.rb`.     
 
-For now, the milliseconds each step took is printed for your constant focus. More on this later.
-
-The code:
+**The Bot:**
 ```ruby
 require "sc2ai"
 
-class MyBot < Sc2::Player::Bot
+class MyCleverBot < Sc2::Player::Bot
   def on_step
     if game_loop == 0
       enemy_start_pos = game_info.start_raw.start_locations.first
@@ -185,18 +205,32 @@ class MyBot < Sc2::Player::Bot
     end
   end
 end
+```
+The `on_step` method executes whenever the game stepped forward. The very first game loop, we send all our workes to attack the enemy's start position.  
 
+**The Match:**  
+To run a match, you can simply create a file which includes your bot and executes it the following way:
+```ruby
+require_relative "my_clever_bot.rb"
 Sc2::Match.new(
   players: [
-    MyBot.new(name: "Rubocop", race: Api::Race::Terran),
-    Sc2::Player::Computer.new(race: Api::Race::Protoss, difficulty: Api::Difficulty::VeryEasy)
+    MyCleverBot.new(name: "myCleverBot", race: Api::Race::Terran),
+    Sc2::Player::Computer.new(race: Api::Race::Random, difficulty: Api::Difficulty::VeryEasy)
   ],
-  map: "GoldenauraAIE" # Or any of the downloaded map names
+  map: "Goldenaura512AIE" # Or any of the downloaded map names
 ).run
+
 ```
 
-Congrats, you're botting!
-The replay is auto-saved as `data/replays/autosave-#{botname}.SC2Replay` for casual review.  
+One such file is ready-made for you in your project `run_example_match.rb`.  
+You can alter this as you see fit and **run the example**:
+```bash
+bundle exec ruby --yjit run_example_match.rb
+```
+
+**Congrats, you're botting!**
+
+**The replay** is auto-saved as `replays/autosave-#{botname}.SC2Replay` for casual review.  
 
 If the code scares you, especially that `game_info.start_raw.start_locations.first` part, fear not.   
 The syntax is generally quite friendly while also forcibly teaching you the API.  
@@ -204,18 +238,66 @@ We have some extremely useful tutorials ahead once you're done skimming the next
 
 ## Competing on the ladder
 
-The dear ladder Admin have had their holiday consumed by moving the aiarena infrastructure to AWS.     
-Ruby support for the aiarena.net ladder will follow in 2024.  
-Instructions will be provided when the time comes.
+Native ruby support for the ladder aiarena.net ladder will follow in 2024.  
+Until then, we build a compatible and semi-portable ruby and ship your source code with it. 
 
-### Practice vs built-in AI
+
+### What the process does
+
+We will execute `docker compose` to pull a Ruby linux image, copy your bot directory, `bundle install` and `zip` up what we need.  
+
+**Includes:**  
+Everything in your current folder is added, including `data/` where you should store persisted and growing files like databases.  
+Then excludes are applied.
+
+**Excludes:**  
+ - all dot folders and file (.git .github .bundler)   
+ - replays (replays/*)  
+
+You can add additional excludes by adding entries to `.ladderignore`.
+
+### Build a Ladder Zip
+
+If this is the first time you are creating a bot, the form is here: https://aiarena.net/botupload/
+
+**Disclaimers:**  
+1. Commit your code before building.  
+2. If you have sensitive source in your folder, **review the zip** file before upload.
+
+The build command is `sc2ai ladderzip BOTNAME`, BUT...
+
+**You must ensure that BOTNAME matches your aiarena "Name" exactly.**  
+
+It does not matter if your in-game name or your classname or your files are organized different.  
+For ladder play, simply require that `./boot.rb` creates an instance called `$bot`.
+
+So lets build... execute this command with your actual BOTNAME instead of myCleverBot:  
+```bash
+bundle exec sc2ai ladderzip myCleverBot
+```
+
+This should generate `./build.zip`.
+
+ 
+### Uploading
+
+Upload build.zip to aiarena.net and call your bot type "**cpplinux**".  
+You must join a competition for your bot to be scheduled.  
+You can also use Request Match to challenge someone directly and immediately.
+
+### Troubleshooting
+
+If you need to debug anything, the logs online are for stderr only. Use it sparingly.  
+`$stderr.puts "I really needed this log entry"`
+
+## Practice vs built-in AI
 A good practice partner is the built-in AI at `Api::Difficulty` from recommended `Hard` through to `CheatInsane`.  
 You can also choose an `ai_build` preset.  
 ```ruby 
 Sc2::Player::Computer.new(difficulty: Api::Difficulty::Hard, ai_build: Api::AIBuild::Air)
 ```
 
-### Play offline against another bot
+## Play offline against another bot
 
 To play against yourself or a friend, from the same computer, just setup a multi-bot match.  
 Two instances of the game will load.  
@@ -233,7 +315,7 @@ Sc2::Match.new(
     MyBot.new(name: "Rubocop", race: Api::Race::Terran),
     SomeOtherBot.new(name: "Jean-ClawsVD", race: Api::Race::Zerg) # :)
   ],
-  map: "GoldenauraAIE",
+  map: "Goldenaura512AIE",
   
 ).run
 
