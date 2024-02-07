@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.2](https://github.com/dysonreturns/sc2ai/compare/v0.0.1...v0.0.2) (2024-02-07)
+
+
+### Bug Fixes
+
+* ladder live check and reduce ladderzip time by pre-installing sc2ai ([3726198](https://github.com/dysonreturns/sc2ai/commit/3726198c95fbe4774865b583cd404a2645cbe305))
+
 ## [0.0.1](https://github.com/dysonreturns/sc2ai/compare/v0.0.0-pre...v0.0.1) (2024-02-07)
 
 
