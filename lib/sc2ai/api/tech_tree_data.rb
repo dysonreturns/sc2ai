@@ -27,6 +27,7 @@ module Api
                                                Api::UnitTypeId::FACTORY =>
   {Api::UnitTypeId::HELLION =>
     {ability: Api::AbilityId::FACTORYTRAIN_HELLION},
+   Api::UnitTypeId::CYCLONE => {ability: Api::AbilityId::TRAIN_CYCLONE},
    Api::UnitTypeId::WIDOWMINE =>
     {ability: Api::AbilityId::FACTORYTRAIN_WIDOWMINE},
    Api::UnitTypeId::SIEGETANK =>
@@ -38,9 +39,7 @@ module Api
      required_building: Api::UnitTypeId::ARMORY},
    Api::UnitTypeId::HELLIONTANK =>
     {ability: Api::AbilityId::TRAIN_HELLBAT,
-     required_building: Api::UnitTypeId::ARMORY},
-   Api::UnitTypeId::CYCLONE =>
-    {ability: Api::AbilityId::TRAIN_CYCLONE, requires_techlab: true}},
+     required_building: Api::UnitTypeId::ARMORY}},
                                                Api::UnitTypeId::STARPORT =>
   {Api::UnitTypeId::MEDIVAC =>
     {ability: Api::AbilityId::STARPORTTRAIN_MEDIVAC},
@@ -507,8 +506,8 @@ module Api
     {ability: Api::AbilityId::RESEARCH_BATTLECRUISERWEAPONREFIT},
    Api::UpgradeId::LIBERATORAGRANGEUPGRADE =>
     {ability: Api::AbilityId::FUSIONCORERESEARCH_RESEARCHBALLISTICRANGE},
-   Api::UpgradeId::MEDIVACINCREASESPEEDBOOST =>
-    {ability: Api::AbilityId::FUSIONCORERESEARCH_RESEARCHRAPIDREIGNITIONSYSTEM}},
+   Api::UpgradeId::MEDIVACCADUCEUSREACTOR =>
+    {ability: Api::AbilityId::FUSIONCORERESEARCH_RESEARCHMEDIVACENERGYUPGRADE}},
                                              Api::UnitTypeId::BARRACKSTECHLAB =>
   {Api::UpgradeId::STIMPACK =>
     {ability: Api::AbilityId::BARRACKSTECHLABRESEARCH_STIMPACK},
@@ -519,8 +518,8 @@ module Api
                                              Api::UnitTypeId::FACTORYTECHLAB =>
   {Api::UpgradeId::HIGHCAPACITYBARRELS =>
     {ability: Api::AbilityId::RESEARCH_INFERNALPREIGNITER},
-   Api::UpgradeId::CYCLONELOCKONDAMAGEUPGRADE =>
-    {ability: Api::AbilityId::RESEARCH_CYCLONELOCKONDAMAGE},
+   Api::UpgradeId::TEMPESTGROUNDATTACKUPGRADE =>
+    {ability: Api::AbilityId::FACTORYTECHLABRESEARCH_CYCLONERESEARCHHURRICANETHRUSTERS},
    Api::UpgradeId::DRILLCLAWS =>
     {ability: Api::AbilityId::RESEARCH_DRILLINGCLAWS,
      required_building: Api::UnitTypeId::ARMORY},
@@ -531,7 +530,9 @@ module Api
   {Api::UpgradeId::BANSHEECLOAK =>
     {ability: Api::AbilityId::RESEARCH_BANSHEECLOAKINGFIELD},
    Api::UpgradeId::BANSHEESPEED =>
-    {ability: Api::AbilityId::RESEARCH_BANSHEEHYPERFLIGHTROTORS}},
+    {ability: Api::AbilityId::RESEARCH_BANSHEEHYPERFLIGHTROTORS},
+   Api::UpgradeId::AMPLIFIEDSHIELDING =>
+    {ability: Api::AbilityId::STARPORTTECHLABRESEARCH_RESEARCHRAVENINTERFERENCEMATRIX}},
                                              Api::UnitTypeId::FORGE =>
   {Api::UpgradeId::PROTOSSGROUNDWEAPONSLEVEL1 =>
     {ability: Api::AbilityId::FORGERESEARCH_PROTOSSGROUNDWEAPONSLEVEL1,
@@ -579,7 +580,7 @@ module Api
    Api::UpgradeId::VOIDRAYSPEEDUPGRADE =>
     {ability: Api::AbilityId::FLEETBEACONRESEARCH_RESEARCHVOIDRAYSPEEDUPGRADE,
      requires_power: true},
-   Api::UpgradeId::TEMPESTGROUNDATTACKUPGRADE =>
+   Api::UpgradeId::MICROBIALSHROUD =>
     {ability: Api::AbilityId::FLEETBEACONRESEARCH_TEMPESTRESEARCHGROUNDATTACKUPGRADE,
      requires_power: true}},
                                              Api::UnitTypeId::TWILIGHTCOUNCIL =>
@@ -709,9 +710,7 @@ module Api
    Api::UpgradeId::CHITINOUSPLATING =>
     {ability: Api::AbilityId::RESEARCH_CHITINOUSPLATING}},
                                              Api::UnitTypeId::INFESTATIONPIT =>
-  {Api::UpgradeId::INFESTORENERGYUPGRADE =>
-    {ability: Api::AbilityId::RESEARCH_PATHOGENGLANDS},
-   Api::UpgradeId::NEURALPARASITE =>
+  {Api::UpgradeId::NEURALPARASITE =>
     {ability: Api::AbilityId::RESEARCH_NEURALPARASITE}},
                                              Api::UnitTypeId::BANELINGNEST =>
   {Api::UpgradeId::CENTRIFICALHOOKS =>
@@ -777,11 +776,11 @@ module Api
                                     Api::UnitTypeId::GHOST => [Api::UnitTypeId::BARRACKS],
                                     Api::UnitTypeId::MARAUDER => [Api::UnitTypeId::BARRACKS],
                                     Api::UnitTypeId::HELLION => [Api::UnitTypeId::FACTORY],
+                                    Api::UnitTypeId::CYCLONE => [Api::UnitTypeId::FACTORY],
                                     Api::UnitTypeId::WIDOWMINE => [Api::UnitTypeId::FACTORY],
                                     Api::UnitTypeId::SIEGETANK => [Api::UnitTypeId::FACTORY],
                                     Api::UnitTypeId::THOR => [Api::UnitTypeId::FACTORY],
                                     Api::UnitTypeId::HELLIONTANK => [Api::UnitTypeId::FACTORY],
-                                    Api::UnitTypeId::CYCLONE => [Api::UnitTypeId::FACTORY],
                                     Api::UnitTypeId::MEDIVAC => [Api::UnitTypeId::STARPORT],
                                     Api::UnitTypeId::VIKINGFIGHTER => [Api::UnitTypeId::STARPORT],
                                     Api::UnitTypeId::LIBERATOR => [Api::UnitTypeId::STARPORT],
@@ -923,17 +922,18 @@ module Api
                                           Api::UpgradeId::BATTLECRUISERENABLESPECIALIZATIONS =>
   Api::UnitTypeId::FUSIONCORE,
                                           Api::UpgradeId::LIBERATORAGRANGEUPGRADE => Api::UnitTypeId::FUSIONCORE,
-                                          Api::UpgradeId::MEDIVACINCREASESPEEDBOOST => Api::UnitTypeId::FUSIONCORE,
+                                          Api::UpgradeId::MEDIVACCADUCEUSREACTOR => Api::UnitTypeId::FUSIONCORE,
                                           Api::UpgradeId::STIMPACK => Api::UnitTypeId::BARRACKSTECHLAB,
                                           Api::UpgradeId::SHIELDWALL => Api::UnitTypeId::BARRACKSTECHLAB,
                                           Api::UpgradeId::PUNISHERGRENADES => Api::UnitTypeId::BARRACKSTECHLAB,
                                           Api::UpgradeId::HIGHCAPACITYBARRELS => Api::UnitTypeId::FACTORYTECHLAB,
-                                          Api::UpgradeId::CYCLONELOCKONDAMAGEUPGRADE =>
+                                          Api::UpgradeId::TEMPESTGROUNDATTACKUPGRADE =>
   Api::UnitTypeId::FACTORYTECHLAB,
                                           Api::UpgradeId::DRILLCLAWS => Api::UnitTypeId::FACTORYTECHLAB,
                                           Api::UpgradeId::SMARTSERVOS => Api::UnitTypeId::FACTORYTECHLAB,
                                           Api::UpgradeId::BANSHEECLOAK => Api::UnitTypeId::STARPORTTECHLAB,
                                           Api::UpgradeId::BANSHEESPEED => Api::UnitTypeId::STARPORTTECHLAB,
+                                          Api::UpgradeId::AMPLIFIEDSHIELDING => Api::UnitTypeId::STARPORTTECHLAB,
                                           Api::UpgradeId::PROTOSSGROUNDWEAPONSLEVEL1 => Api::UnitTypeId::FORGE,
                                           Api::UpgradeId::PROTOSSGROUNDARMORSLEVEL1 => Api::UnitTypeId::FORGE,
                                           Api::UpgradeId::PROTOSSSHIELDSLEVEL1 => Api::UnitTypeId::FORGE,
@@ -945,7 +945,7 @@ module Api
                                           Api::UpgradeId::PROTOSSSHIELDSLEVEL3 => Api::UnitTypeId::FORGE,
                                           Api::UpgradeId::PHOENIXRANGEUPGRADE => Api::UnitTypeId::FLEETBEACON,
                                           Api::UpgradeId::VOIDRAYSPEEDUPGRADE => Api::UnitTypeId::FLEETBEACON,
-                                          Api::UpgradeId::TEMPESTGROUNDATTACKUPGRADE => Api::UnitTypeId::FLEETBEACON,
+                                          Api::UpgradeId::MICROBIALSHROUD => Api::UnitTypeId::FLEETBEACON,
                                           Api::UpgradeId::CHARGE => Api::UnitTypeId::TWILIGHTCOUNCIL,
                                           Api::UpgradeId::BLINKTECH => Api::UnitTypeId::TWILIGHTCOUNCIL,
                                           Api::UpgradeId::ADEPTPIERCINGATTACK => Api::UnitTypeId::TWILIGHTCOUNCIL,
@@ -987,7 +987,6 @@ module Api
                                           Api::UpgradeId::ZERGFLYERARMORSLEVEL3 => Api::UnitTypeId::SPIRE,
                                           Api::UpgradeId::ANABOLICSYNTHESIS => Api::UnitTypeId::ULTRALISKCAVERN,
                                           Api::UpgradeId::CHITINOUSPLATING => Api::UnitTypeId::ULTRALISKCAVERN,
-                                          Api::UpgradeId::INFESTORENERGYUPGRADE => Api::UnitTypeId::INFESTATIONPIT,
                                           Api::UpgradeId::NEURALPARASITE => Api::UnitTypeId::INFESTATIONPIT,
                                           Api::UpgradeId::CENTRIFICALHOOKS => Api::UnitTypeId::BANELINGNEST,
                                           Api::UpgradeId::GLIALRECONSTITUTION => Api::UnitTypeId::ROACHWARREN,
@@ -1039,6 +1038,7 @@ module Api
     Api::AbilityId::ATTACK_ATTACK,
     Api::AbilityId::EFFECT_MASSRECALL_STRATEGICRECALL,
     Api::AbilityId::EFFECT_TIMEWARP,
+    Api::AbilityId._250MMSTRIKECANNONS_CANCEL,
     Api::AbilityId::SMART],
                                  Api::UnitTypeId::POINTDEFENSEDRONE => [],
                                  Api::UnitTypeId::CHANGELING =>
@@ -1130,12 +1130,12 @@ module Api
     Api::AbilityId::BUILD_REACTOR_FACTORY,
     Api::AbilityId::LIFT_FACTORY,
     Api::AbilityId::FACTORYTRAIN_HELLION,
+    Api::AbilityId::TRAIN_CYCLONE,
     Api::AbilityId::FACTORYTRAIN_WIDOWMINE,
     Api::AbilityId::SMART,
     Api::AbilityId::FACTORYTRAIN_SIEGETANK,
     Api::AbilityId::FACTORYTRAIN_THOR,
-    Api::AbilityId::TRAIN_HELLBAT,
-    Api::AbilityId::TRAIN_CYCLONE],
+    Api::AbilityId::TRAIN_HELLBAT],
                                  Api::UnitTypeId::STARPORT =>
   [Api::AbilityId::RALLY_BUILDING,
     Api::AbilityId::BUILD_TECHLAB_STARPORT,
@@ -1161,7 +1161,7 @@ module Api
                                  Api::UnitTypeId::FUSIONCORE =>
   [Api::AbilityId::RESEARCH_BATTLECRUISERWEAPONREFIT,
     Api::AbilityId::FUSIONCORERESEARCH_RESEARCHBALLISTICRANGE,
-    Api::AbilityId::FUSIONCORERESEARCH_RESEARCHRAPIDREIGNITIONSYSTEM],
+    Api::AbilityId::FUSIONCORERESEARCH_RESEARCHMEDIVACENERGYUPGRADE],
                                  Api::UnitTypeId::AUTOTURRET =>
   [Api::AbilityId::STOP_STOP,
     Api::AbilityId::ATTACK_ATTACK,
@@ -1210,13 +1210,14 @@ module Api
                                  Api::UnitTypeId::BARRACKSREACTOR => [],
                                  Api::UnitTypeId::FACTORYTECHLAB =>
   [Api::AbilityId::RESEARCH_INFERNALPREIGNITER,
-    Api::AbilityId::RESEARCH_CYCLONELOCKONDAMAGE,
+    Api::AbilityId::FACTORYTECHLABRESEARCH_CYCLONERESEARCHHURRICANETHRUSTERS,
     Api::AbilityId::RESEARCH_DRILLINGCLAWS,
     Api::AbilityId::RESEARCH_SMARTSERVOS],
                                  Api::UnitTypeId::FACTORYREACTOR => [],
                                  Api::UnitTypeId::STARPORTTECHLAB =>
   [Api::AbilityId::RESEARCH_BANSHEECLOAKINGFIELD,
-    Api::AbilityId::RESEARCH_BANSHEEHYPERFLIGHTROTORS],
+    Api::AbilityId::RESEARCH_BANSHEEHYPERFLIGHTROTORS,
+    Api::AbilityId::STARPORTTECHLABRESEARCH_RESEARCHRAVENINTERFERENCEMATRIX],
                                  Api::UnitTypeId::STARPORTREACTOR => [],
                                  Api::UnitTypeId::FACTORYFLYING =>
   [Api::AbilityId::STOP_STOP,
@@ -1346,9 +1347,9 @@ module Api
     Api::AbilityId::HOLDPOSITION_HOLD,
     Api::AbilityId::SCAN_MOVE,
     Api::AbilityId::BUILDAUTOTURRET_AUTOTURRET,
-    Api::AbilityId::EFFECT_INTERFERENCEMATRIX,
     Api::AbilityId::EFFECT_ANTIARMORMISSILE,
-    Api::AbilityId::SMART],
+    Api::AbilityId::SMART,
+    Api::AbilityId::EFFECT_INTERFERENCEMATRIX],
                                  Api::UnitTypeId::BATTLECRUISER =>
   [Api::AbilityId::EFFECT_TACTICALJUMP,
     Api::AbilityId::ATTACK_BATTLECRUISER,
@@ -1607,8 +1608,7 @@ module Api
   [Api::AbilityId::RESEARCH_ANABOLICSYNTHESIS,
     Api::AbilityId::RESEARCH_CHITINOUSPLATING],
                                  Api::UnitTypeId::INFESTATIONPIT =>
-  [Api::AbilityId::RESEARCH_PATHOGENGLANDS,
-    Api::AbilityId::RESEARCH_NEURALPARASITE],
+  [Api::AbilityId::RESEARCH_NEURALPARASITE],
                                  Api::UnitTypeId::NYDUSNETWORK =>
   [Api::AbilityId::STOP_STOP,
     Api::AbilityId::RALLY_BUILDING,
@@ -1685,7 +1685,8 @@ module Api
     Api::AbilityId::HOLDPOSITION_HOLD,
     Api::AbilityId::ATTACK_ATTACK,
     Api::AbilityId::SMART,
-    Api::AbilityId::BURROWDOWN_ZERGLING],
+    Api::AbilityId::BURROWDOWN_ZERGLING,
+    Api::AbilityId::MORPHTOBANELING_CANCEL],
                                  Api::UnitTypeId::OVERLORD =>
   [Api::AbilityId::STOP_STOP,
     Api::AbilityId::MOVE_MOVE,
@@ -2240,7 +2241,10 @@ module Api
     Api::AbilityId::MOVE_MOVE,
     Api::AbilityId::ATTACK_ATTACK,
     Api::AbilityId::SMART],
-                                 Api::UnitTypeId::SHIELDBATTERY => [],
+                                 Api::UnitTypeId::SHIELDBATTERY =>
+  [Api::AbilityId::STOP_STOP,
+    Api::AbilityId::SHIELDBATTERYRECHARGEEX5_SHIELDBATTERYRECHARGE,
+    Api::AbilityId::SMART],
                                  Api::UnitTypeId::OBSERVERSIEGEMODE =>
   [Api::AbilityId::STOP_STOP, Api::AbilityId::MORPH_OBSERVERMODE],
                                  Api::UnitTypeId::OVERSEERSIEGEMODE =>
