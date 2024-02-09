@@ -1,6 +1,5 @@
 require "thor"
 
-
 require "sc2ai/cli/new"
 require "sc2ai/cli/ladderzip"
 

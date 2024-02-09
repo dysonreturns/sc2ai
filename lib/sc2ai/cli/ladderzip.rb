@@ -34,7 +34,6 @@ module Sc2
           say("Please start docker engine. If you have Docker Desktop installed, open it before retrying.")
           raise SystemExit
         end
-
       end
 
       def set_compose_file
@@ -76,7 +75,7 @@ module Sc2
       def create_executable
         template("ladderzip/bin/ladder", "./.build/bin/ladder")
         # This fails on Windows. creating by hand in #link_ladder function below.
-        #create_link("./.build/#{botname}", "./bin/ladder")
+        # create_link("./.build/#{botname}", "./bin/ladder")
       end
 
       def start_container
@@ -98,9 +97,11 @@ module Sc2
         include_pattern.collect! { |pt| pt.delete_prefix("!") }
 
         files = Dir.glob("**/*")
+
         ignored_files = files
           .select { |f| ignore_pattern.any? { |p| File.fnmatch?(p, f) } }
-          .reject! { |f| include_pattern.any? { |p| File.fnmatch?(p, f) } }
+          .reject { |f| include_pattern.any? { |p| File.fnmatch?(p, f) } }
+
         files -= ignored_files unless ignored_files.nil?
 
         files.each do |file|
