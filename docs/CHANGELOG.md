@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.3](https://github.com/dysonreturns/sc2ai/compare/v0.0.2...v0.0.3) (2024-02-09)
+
+
+### Features
+
+* update stableid to match v5.0.12 ([fcf4b65](https://github.com/dysonreturns/sc2ai/commit/fcf4b654e6074cccb3044e13992a02227a6ffd51))
+
+
+### Bug Fixes
+
+* .ladderignore not respected during ladderzip build ([14d38b7](https://github.com/dysonreturns/sc2ai/commit/14d38b731cf3f57ff17b70b6f400a1dc776e2b31))
+* geo.powered? checks correct minimap tiles ([25cf110](https://github.com/dysonreturns/sc2ai/commit/25cf1103d66fc4ddad972e23aa2bc39c1ba63e7e))
+* windows compatible ladder zip ([dfc3292](https://github.com/dysonreturns/sc2ai/commit/dfc3292f74af5fc597eb4ea5b0689d3625d5e597))
+
+
+### Miscellaneous Chores
+
+* release 0.0.3 ([0d76afa](https://github.com/dysonreturns/sc2ai/commit/0d76afa50c23eebf7f4b9237b7435ebf9303240c))
+
 ## [0.0.2](https://github.com/dysonreturns/sc2ai/compare/v0.0.1...v0.0.2) (2024-02-07)
 
 
