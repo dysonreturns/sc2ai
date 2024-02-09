@@ -18,12 +18,23 @@ module Sc2
       desc "Builds a ladder zip using docker (requires docker)"
 
       def docker_exists
-        if Kernel.system("docker --version")
+        if Kernel.system("docker --version", out: File::NULL, err: File::NULL)
           say_status("docker", "found", :green)
         else
           say_status("docker", "not found", :red)
           say("Please install 'docker' and/or ensure it's in your PATH to continue.")
+          raise SystemExit
         end
+
+        if Kernel.system("docker info", out: File::NULL, err: File::NULL)
+          say_status("docker engine", "found", :green)
+        else
+          say("  ")
+          say_status("docker engine", "offline", :red)
+          say("Please start docker engine. If you have Docker Desktop installed, open it before retrying.")
+          raise SystemExit
+        end
+
       end
 
       def set_compose_file
@@ -64,7 +75,8 @@ module Sc2
 
       def create_executable
         template("ladderzip/bin/ladder", "./.build/bin/ladder")
-        create_link(".build/#{botname}", "./bin/ladder")
+        # This fails on Windows. creating by hand in #link_ladder function below.
+        #create_link("./.build/#{botname}", "./bin/ladder")
       end
 
       def start_container
@@ -100,6 +112,12 @@ module Sc2
       def copy_build_to_docker
         say_status("docker", "copying source...", :cyan)
         cmd = "docker compose -f #{@compose_file} cp ./.build/. bot:/root/ruby-builder/"
+        Kernel.system(cmd)
+      end
+
+      def link_ladder
+        say_status("docker", "linking executable...", :cyan)
+        cmd = "docker compose -f #{@compose_file} exec --workdir /root/ruby-builder bot ln -s ./bin/ladder ./#{botname}"
         Kernel.system(cmd)
       end
 
