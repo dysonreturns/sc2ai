@@ -433,13 +433,13 @@ This table provides events and callbacks available, with an example below.
 ### Example handling of dead units
 From your Bot, you can read the UnitGroup `@event_units_destroyed` `on_step` for all Units which got destroyed in the last frame.  
 Even though those Units are not present in this frame, their `Api::Unit` objects are available, should like like to know, i.e. where something died and of what type.  
-For example, if an SCV died, you can read last frame's `Api::Unit#orders`. If it wanted to build an expansion, you might want to retry or expand elsewhere.  
+For example, if an SCV died, you can read last frame's `Api::Unit#orders` (`dead_unit.orders`). If it wanted to build an expansion, you might want to retry or expand elsewhere.  
 
 You can loop over units in `@event_units_destroyed` **or** receive a callback by overriding (implementing) `on_unit_destroyed`.  
 The callbacks occur after the game has ticked forward, but before `on_step`.  
 Typically the callbacks come in the form of **individual units**, where the `@event_*` properties contain the **whole list**.
 
-
+Here's an example, which attempts to save nearby workers after an orbital command structure is destroyed by the enemy.  
 ```ruby
 class MyBot < Sc2::Player::Bot
   
@@ -613,12 +613,9 @@ Requests can be called on your api connection.
 **Any request will be Slow** as it takes a few milliseconds to talk to the client.  
 You can perform these on `Bot#api`, i.e. `api.available_maps` will return an array of maps available.
 
-For most methods, there are helper method alternatives at the Bot level.   
-See [Bot Actions](#label-Bot+Actions).  
+For most methods, there are helper method alternatives at the Bot level. See [Bot Actions](#label-Bot+Actions) for convenience methods to these raw api requests below.  
 
-If you are interested in sending raw commands, you should be familiar with the protobuf definitions and/or have the `.proto` files handy for reference:  
-https://github.com/dysonreturns/sc2ai/tree/main/data/sc2ai/protocol
-
+If you are interested in sending raw commands, you should be familiar with the protobuf definitions and/or have the `.proto` files handy for reference.
 
 | method                            | desc                                                                                                 | Fast/Med/Slow |
 |-----------------------------------|------------------------------------------------------------------------------------------------------|---------------|
@@ -782,24 +779,24 @@ From the context of your bot, you can access the following map/geo methods:
 |------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | geo.map_width                                                                      | map tile width. Range is 1-255                                                                                                                     | F             |
 | geo.map_height                                                                     | map tile height. Range is 1-255                                                                                                                    | F             |
-| geo.map_tile_range_x                                                               | range 0..(map_width - 1). useful for x.clamp() to stay in map bounds                                                                               | M             |
-| geo.map_tile_range_y                                                               | range 0..(map_height - 1). useful for y.clamp() to stay in map bounds                                                                              | M             |
-| geo.powered?(x:, y:)                                                               | whether a x/y block is powered                                                                                                                     | M             |
-| geo.pathable?(x:, y:)                                                              | whether a x/y block is pathable as per minimap                                                                                                     | M             |
-| geo.terrain_height(x:, y:)                                                         | float height (z position) of tile (-16.0 to 16.0)                                                                                                  | M             |
-| geo.visibility(x:, y:)                                                             | visibility indicator: 0=Hidden,1= Snapshot,2=Visible                                                                                               | M             |
-| geo.map_visible?(x:, y:)                                                           | whether the point (tile) is currently in vision                                                                                                    | M             |
-| geo.map_seen?(x:, y:)                                                              | whether point (tile) has been seen before or currently visible                                                                                     | M             |
-| geo.map_unseen?(x:, y:)                                                            | has never been seen/explored before (dark fog)                                                                                                     | M             |
-| geo.creep?(x:, y:)                                                                 | Zerg: whether a tile has creep on it, as per minimap                                                                                               | M             |
+| geo.map_tile_range_x                                                               | range 0..(map_width - 1). useful for x.clamp() to stay in map bounds                                                                               | F             |
+| geo.map_tile_range_y                                                               | range 0..(map_height - 1). useful for y.clamp() to stay in map bounds                                                                              | F             |
+| geo.powered?(x:, y:)                                                               | whether a x/y block is powered                                                                                                                     | F             |
+| geo.pathable?(x:, y:)                                                              | whether a x/y block is pathable as per minimap                                                                                                     | F             |
+| geo.terrain_height(x:, y:)                                                         | float height (z position) of tile (-16.0 to 16.0)                                                                                                  | F             |
+| geo.visibility(x:, y:)                                                             | visibility indicator: 0=Hidden,1= Snapshot,2=Visible                                                                                               | F             |
+| geo.map_visible?(x:, y:)                                                           | whether the point (tile) is currently in vision                                                                                                    | F             |
+| geo.map_seen?(x:, y:)                                                              | whether point (tile) has been seen before or currently visible                                                                                     | F             |
+| geo.map_unseen?(x:, y:)                                                            | has never been seen/explored before (dark fog)                                                                                                     | F             |
+| geo.creep?(x:, y:)                                                                 | Zerg: whether a tile has creep on it, as per minimap                                                                                               | F             |
 | geo.expansions                                                                     | Gets expos and surrounding minerals. <br>  `[Hash<Api::Point2D, UnitGroup>]` Location => UnitGroup of resources (minerals+geysers)                 | M             |
 | geo.expansion_points                                                               | Returns a list of 2D points for expansion build locations<br> = geo.expansions.keys                                                                | M             |
 | geo.expansions_unoccupied                                                          | a slice of #expansions where a base hasn't been built yet                                                                                          | M             |
 | geo.build_coordinates(length:, on_creep: false, in_power: false)                   | buildable point grid for squares of size, i.e. 3 = 3x3 placements                                                                                  | M             |
 | geo.build_placement_near(length:, target:, random: 1)                              | gets a buildable location for a square of length, near target. <br/>can randomly select between `random` number of possible points for robustness. | M             |
-| geo.points_nearest_linear(source:, target:, offset: 0.0, increment: 1.0, count: 1) | find points on a straight line. equally spaced from a source to a target. line units in a row.                                                     | M             |
-| geo.point_random_near(pos:, offset: 1.0)                                           | a random point near a location with a positive/negative offset magnitude. scatter units.                                                           | M             |
-| geo.point_random_on_circle(pos:, radius: 1.0)                                      | a random point on a circle's circumference. fan units around point.                                                                                | M             |
+| geo.points_nearest_linear(source:, target:, offset: 0.0, increment: 1.0, count: 1) | find points on a straight line. equally spaced from a source to a target. line units in a row.                                                     | F             |
+| geo.point_random_near(pos:, offset: 1.0)                                           | a random point near a location with a positive/negative offset magnitude. scatter units.                                                           | F             |
+| geo.point_random_on_circle(pos:, radius: 1.0)                                      | a random point on a circle's circumference. fan units around point.                                                                                | F             |
 | geo.warp_points(source:, unit_type_id: )                                           | Protoss: warp locations at a power source, for the width of a unit type.                                                                           | M             |
 
 ### Position (Point and Vector math)
@@ -915,7 +912,7 @@ All calls are statically made to the class.
 ## Protocol
 
 The library talks to SC2 over Google Protobuf.  
-The .proto files ship with the gem but are available for review here:  
+The .proto files ship with the gem but their original source is available here for review:  
 Proto: https://github.com/Blizzard/s2client-proto/tree/master/s2clientprotocol  <br>
 Overview: https://github.com/Blizzard/s2client-proto/blob/master/docs/protocol.md
 
@@ -955,8 +952,10 @@ class MyBot < Sc2::Player::Bot
     
     # But from the context of a Unit, using #attack extension,
     # this code feels better than both.
-    hero_marine.attack target: #...
-
+    hero_marine.attack(target: ) #...
+    
+    # (unit groups, same syntax as Unit) 
+    # marines.attack(target: #...)
   end
 end
 ```

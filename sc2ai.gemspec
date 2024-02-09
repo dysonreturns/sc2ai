@@ -63,6 +63,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 13.1"
   # Doc
   spec.add_development_dependency "yard", "~> 0.9"
+  spec.add_development_dependency "webrick", "~> 1.8"
   # Linting
   # spec.add_development_dependency "fasterer" # no 3.3 support yet
   spec.add_development_dependency "standard", "~> 1.33"

@@ -155,7 +155,7 @@ Our competitive ladder plays on v4.10, because there's a Linux client at v4.10 w
 The retail game version is way further ahead - currently at v5.0.12 as of this writing.  
   
 No worries, all the latest game updates are backported directly into our AI Edition maps (thanks to one beautiful Zerg).
-You're free to launch SC2 retail right now, as in the [Running a Match](#label-Running+a+Match) section, but you'll **notice you can't control units manually** or move the camera.
+You're free to launch SC2 retail right now, as in the [Running your first Match](#label-Running+your+first+Match) section, but you'll **notice you can't control units manually** or move the camera.
 
 To match the competitive ladder and **gain control locally**, lets download and configure the match runner to launch 4.10 - easy.
 
@@ -258,20 +258,20 @@ You can add additional excludes by adding entries to `.ladderignore`.
 
 ### Build a Ladder Zip
 
-If this is the first time you are creating a bot, the form is here: https://aiarena.net/botupload/
+
 
 **Disclaimers:**  
 1. Commit your code before building.  
 2. If you have sensitive source in your folder, **review the zip** file before upload.
 
-The build command is `sc2ai ladderzip BOTNAME`, BUT...
+The build command is `sc2ai ladderzip BOTNAME`, but...
 
 **You must ensure that BOTNAME matches your aiarena "Name" exactly.**  
 
-It does not matter if your in-game name or your classname or your files are organized different.  
-For ladder play, simply require that `./boot.rb` creates an instance called `$bot`.
+You are allowed to move and name your classes as you see fit. Your in-game name doesn't even need to match.  
+The only important part of the process is that `boot.rb` creates an instance called `$bot` and your built BOTNAME matches you aiarena "Name".
 
-So lets build... execute this command with your actual BOTNAME instead of myCleverBot:  
+So lets build your bot. Execute this command with your actual BOTNAME instead of myCleverBot:  
 ```bash
 bundle exec sc2ai ladderzip myCleverBot
 ```
@@ -281,7 +281,8 @@ This should generate `./build.zip`.
  
 ### Uploading
 
-Upload build.zip to aiarena.net and call your bot type "**cpplinux**".  
+If this is the first time you are creating a bot, the form is here: https://aiarena.net/botupload/  
+Upload build.zip to aiarena.net and select "Type" "**cpplinux**".  
 You must join a competition for your bot to be scheduled.  
 You can also use Request Match to challenge someone directly and immediately.
 
