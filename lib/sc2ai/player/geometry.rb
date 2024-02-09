@@ -202,7 +202,7 @@ module Sc2
       # @param y [Float, Integer]
       # @return [Boolean] true if location is powered
       def powered?(x:, y:)
-        parsed_creep[y.to_i, x.to_i] != 0
+        parsed_power_grid[y.to_i, x.to_i] != 0
       end
 
       # Returns whether a x/y block is pathable as per minimap
