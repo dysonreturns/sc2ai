@@ -7,4 +7,5 @@
 # https://github.com/BurnySc2/sc2-techtree/blob/develop/data/data.json
 
 require "net/http"
-File.write("data/data.json", Net::HTTP.get(URI.parse("https://raw.githubusercontent.com/dysonreturns/sc2-techtree/develop/data/data.json")))
+File.write("data/data.json", Net::HTTP.get(URI.parse("https://raw.githubusercontent.com/BurnySc2/sc2-techtree/develop/data/data.json")))
+File.write("data/data_readable.json", Net::HTTP.get(URI.parse("https://raw.githubusercontent.com/BurnySc2/sc2-techtree/develop/data/data_readable.json")))

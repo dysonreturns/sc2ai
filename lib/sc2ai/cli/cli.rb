@@ -133,7 +133,7 @@ module Sc2
     option :RealTime, type: :boolean, default: false, desc: "Forces realtime flag"
     def laddermatch
       require "sc2ai"
-      
+
       unless Sc2.ladder?
         raise Sc2::Error, "This command is only for competing on aiarena.net"
       end

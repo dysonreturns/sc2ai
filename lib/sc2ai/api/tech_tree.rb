@@ -1,6 +1,5 @@
 require_relative "tech_tree_data"
 
-
 module Api
   # Provides helper functions which work with and rely on auto generated data in tech_tree_data.rb
   # To lighten code generation, these methods live in a file of their own and may be modified.
