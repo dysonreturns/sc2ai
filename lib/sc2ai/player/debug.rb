@@ -37,6 +37,52 @@ module Sc2
         )
       end
 
+      # Prints text on screen from top and left
+      # @param text [String] will respect newlines
+      # @param left_percent [Numeric] range 0..100. percent from left of screen
+      # @param top_percent [Numeric] range 0..100. percent from top of screen
+      # @param color [Api::Color] default white
+      # @param size [Size] of font, default 14px
+      # @return [void]
+      def debug_text_screen(text, left_percent: 1.0, top_percent: 1.0, color: nil, size: 14)
+        queue_debug_command Api::DebugCommand.new(
+          draw: Api::DebugDraw.new(
+            text: [
+              Api::DebugText.new(
+                text:,
+                virtual_pos: Api::Point.new(
+                  x: left_percent.to_f / 100,
+                  y: top_percent.to_f / 100
+                ),
+                color:,
+                size:
+              )
+            ]
+          )
+        )
+      end
+
+      # Prints text on screen at 3d world position
+      # @param text [String] will respect newlines
+      # @param point [Api::Point] point in the world, i.e. unit.pos
+      # @param color [Api::Color] default white
+      # @param size [Size] of font, default 14px
+      # @return [void]
+      def debug_text_world(text, point:, color: nil, size: 14)
+        queue_debug_command Api::DebugCommand.new(
+          draw: Api::DebugDraw.new(
+            text: [
+              Api::DebugText.new(
+                text:,
+                world_pos: point,
+                color:,
+                size:
+              )
+            ]
+          )
+        )
+      end
+
       # Draws a line between two Api::Point's for color
       # @param p0 [Api::Point] the first point
       # @param p1 [Api::Point] the second point
@@ -74,8 +120,8 @@ module Sc2
           draw: Api::DebugDraw.new(
             boxes: [
               Api::DebugBox.new(
-                min: Api::Point.new(x: point.x - radius, y: point.y - radius, z: point.z + 0.01),
-                max: Api::Point.new(x: point.x + radius, y: point.y + radius, z: point.z + (radius * 2) + 0.01),
+                min: Api::Point.new(x: point.x - radius, y: point.y - radius, z: point.z + 0.02),
+                max: Api::Point.new(x: point.x + radius, y: point.y + radius, z: point.z + (radius * 2) + 0.02),
                 color:
               )
             ]

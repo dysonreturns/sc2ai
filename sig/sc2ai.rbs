@@ -613,22 +613,23 @@ module Sc2
       def debug_print: (String text, ?size: Size) -> void
 
       # sord warn - Size wasn't able to be resolved to a constant in this project
-      # sord omit - no YARD type given for "color:", using untyped
       # Prints text on screen from top and left
       # 
       # _@param_ `text` — will respect newlines
       # 
-      # _@param_ `size` — of font, default 14px
-      # 
       # _@param_ `left_percent` — range 0..100. percent from left of screen
       # 
       # _@param_ `top_percent` — range 0..100. percent from top of screen
+      # 
+      # _@param_ `color` — default white
+      # 
+      # _@param_ `size` — of font, default 14px
       def debug_text_screen: (
                                String text,
                                ?left_percent: Numeric,
                                ?top_percent: Numeric,
-                               ?size: Size,
-                               ?color: untyped
+                               ?color: Api::Color?,
+                               ?size: Size
                              ) -> void
 
       # sord warn - Size wasn't able to be resolved to a constant in this project
@@ -1204,22 +1205,23 @@ module Sc2
       def debug_print: (String text, ?size: Size) -> void
 
       # sord warn - Size wasn't able to be resolved to a constant in this project
-      # sord omit - no YARD type given for "color:", using untyped
       # Prints text on screen from top and left
       # 
       # _@param_ `text` — will respect newlines
       # 
-      # _@param_ `size` — of font, default 14px
-      # 
       # _@param_ `left_percent` — range 0..100. percent from left of screen
       # 
       # _@param_ `top_percent` — range 0..100. percent from top of screen
+      # 
+      # _@param_ `color` — default white
+      # 
+      # _@param_ `size` — of font, default 14px
       def debug_text_screen: (
                                String text,
                                ?left_percent: Numeric,
                                ?top_percent: Numeric,
-                               ?size: Size,
-                               ?color: untyped
+                               ?color: Api::Color?,
+                               ?size: Size
                              ) -> void
 
       # sord warn - Size wasn't able to be resolved to a constant in this project
