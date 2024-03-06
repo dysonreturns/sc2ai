@@ -97,7 +97,7 @@ module Sc2
       @difficulty = difficulty
       @ai_build = ai_build
       @realtime = false
-      @step_count = 1
+      @step_count = 2
 
       @enable_feature_layer = false
       @interface_options = {}
@@ -201,7 +201,7 @@ module Sc2
 
       # Override to customize initialization
       # Alias of before_join
-      # You can enable_feature_layer=true, set step_size, define
+      # You can enable_feature_layer=true, set step_count, define
       # @example
       #   def configure
       #     step_count = 4 # Update less frequently
@@ -498,9 +498,7 @@ module Sc2
       # Sc2.logger.debug "#{self.class} step_forward"
 
       unless @realtime
-        # ##TODO: Numsteps as config
-        num_steps = 1
-        @api.step(num_steps)
+        @api.step(@step_count)
       end
 
       refresh_state
@@ -610,9 +608,9 @@ module Sc2
     # ##TODO: perfect loop implementation
     # observation has an optional param game_loop and will only return once that step is reached (blocking).
     # without it, it returns things as they are.
-    # broadly, i think this is what it should be doing, with step_size being minimum of 1, so no zero-steps occur.
+    # broadly, i think this is what it should be doing, with step_count being minimum of 1, so no zero-steps occur.
     # @example
-    # desired_game_loop = current_game_loop + step_size
+    # desired_game_loop = current_game_loop + step_count
     # response = client.observation(game_loop: desired_game_loop)
     #
     #   if response.game_loop > desired_game_loop {

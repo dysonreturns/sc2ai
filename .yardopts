@@ -1,3 +1,4 @@
+--template-path=./docs/template
 --protected
 --no-private
 --embed-mixin=ClassMethods
