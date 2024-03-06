@@ -32,14 +32,14 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Live dependencies ---
-  spec.add_dependency "async", "~> 2.6.5"
+  spec.add_dependency "async", "~> 2.9"
   # Sc2::Connection
   spec.add_dependency "async-websocket", "~> 0.26.0"
   spec.add_dependency "google-protobuf", "~> 3.25.3"
   # Sc2::Client / Controller
   spec.add_dependency "async-process", "~> 1.3.1"
   # Cli
-  spec.add_dependency "thor", "~> 1.3.0"
+  spec.add_dependency "thor", "~> 1.3.1"
 
   # Geometry
   spec.add_dependency "perfect-shape", "~> 1.0.8"
@@ -66,21 +66,21 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "webrick", "~> 1.8"
   # Sig
   spec.add_development_dependency "sord"
-  #spec.add_development_dependency "rbs_protobuf", "~> 1.2"
-  #spec.add_development_dependency "protobuf", "~> 3.10" # _only_ required for signatures
+  # spec.add_development_dependency "rbs_protobuf", "~> 1.2"
+  # spec.add_development_dependency "protobuf", "~> 3.10" # _only_ required for signatures
 
   # Linting
   # spec.add_development_dependency "fasterer" # no 3.3 support yet
-  spec.add_development_dependency "standard", "~> 1.33"
+  spec.add_development_dependency "standard", "~> 1.34"
 
   # Profiling
-  spec.add_development_dependency "memory_profiler", "~> 1.0"
-  spec.add_development_dependency "benchmark", "~> 0.3"
-  spec.add_development_dependency "benchmark-ips", "~> 2.13"
+  # spec.add_development_dependency "memory_profiler", "~> 1.0"
+  # spec.add_development_dependency "benchmark", "~> 0.3"
+  # spec.add_development_dependency "benchmark-ips", "~> 2.13"
 
   # Testing
   spec.add_development_dependency "factory_bot", "~> 6.4"
   spec.add_development_dependency "fakefs", "~> 2.5"
-  spec.add_development_dependency "rspec", "~> 3.12"
-  spec.add_development_dependency "simplecov", "~> 0.22"
+  spec.add_development_dependency "rspec", "~> 3.13"
+  # spec.add_development_dependency "simplecov", "~> 0.22"
 end

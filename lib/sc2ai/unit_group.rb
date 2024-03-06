@@ -102,8 +102,8 @@ module Sc2
     #   unit_group.each do |unit|
     #      puts unit.tag #=> 1234 ...
     #   end
-    def each(&block)
-      @units.each_value(&block)
+    def each(&)
+      @units.each_value(&)
     end
 
     # Calls the given block with each key-value pair
@@ -114,8 +114,8 @@ module Sc2
     #   unit_group.each do |tag, unit|
     #      puts "#{tag}: #{unit}"} #=> "12345: #<Api::Unit ...>"
     #   end
-    def each_with_tag(&block)
-      @units.each(&block)
+    def each_with_tag(&)
+      @units.each(&)
       self
     end
 
