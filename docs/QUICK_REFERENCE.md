@@ -5,7 +5,7 @@
 If you are reading the tutorial for the first time, scroll over basic info below and spend a minute if anything catches your eye.  
 
 You will feel overwhelmed if you read this all in one go, so lets rather start with small examples.  
-After a quick scroll-over, {file:docs/TUTORIAL_01.md let's do some tutorials}.
+After a quick scroll-over, {file:docs/TUTORIAL_01.md let's do some tutorials ➡️}. 
 
 ## Overview
 
@@ -585,17 +585,15 @@ While Raw's `Api::AbilityId::UNLOADALL` works just fine for most cases, you can 
 Enabling the feature layer comes at a few millisecond **performance cost** as it doubles the network throughput of RequestObservation.
 
 
-To enable this layer, either set the flag `enable_feature_layer` before your bot loads via `Sc2.config` ...
+To enable this layer, set @enable_feature_layer in your Bot's configure method, which is called post-init, but before the server is joined.
 ```ruby
-Sc2.config do |config|
-    config.enable_feature_layer = true
+class MyBot < Sc2::Player::Bot
+  
+  def configure
+    @enable_feature_layer = true
+  end
+  
 end
-```
-**OR** add enable_feature_layer to you yaml config, `./sc2ai.yml`.
-```yaml
----
-version: "4.10"
-enable_feature_layer: true
 ```
 
 **Feature layer actions**

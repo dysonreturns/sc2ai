@@ -4,7 +4,7 @@ class <%= @classname %> < Sc2::Player::Bot
 
   def configure
     @realtime = false # Step-mode vs Bot, Realtime vs Humans
-    @step_size = 1 # Gives 22.4ms, typically compete at 2 (44.8ms) or 4 (179.2ms).
+    @step_count = 2 # 2s/22.4 = ~89.29ms step cycle time allowance
     @enable_feature_layer = false; # Enables ui_ and spatial_ actions. Advanced, and has performance cost.
   end
 
