@@ -47,10 +47,10 @@ module Sc2
 
       # Event-driven unit groups ---
 
+      # @!attribute event_units_created
       # Units created since last frame (visible only, units not structures)
       # Read this on_step. Alternative to callback on_unit_created
-      # Note: Morphed units should watch #event_units_type_changed
-      # @!attribute event_units_created
+      # @note Morphed units should watch #event_units_type_changed
       #   @return [Sc2::UnitGroup] group of created units
       attr_accessor :event_units_created
 

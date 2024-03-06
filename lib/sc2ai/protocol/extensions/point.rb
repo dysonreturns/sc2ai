@@ -13,6 +13,9 @@ module Api
       # @example
       #   Api::Point[1,2,3] # Where x is 1.0, y is 2.0 and z is 3.0
       # @return [Api::Point]
+      # @param [Float] x
+      # @param [Float] y
+      # @param [Float] z
       def [](x, y, z)
         Api::Point.new(x: x, y: y, z: z)
       end
