@@ -23,4 +23,4 @@ module Api
   end
 end
 Api::Point.include Api::PointExtension
-Api::Point.include Api::PointExtension::ClassMethods
+Api::Point.extend Api::PointExtension::ClassMethods
