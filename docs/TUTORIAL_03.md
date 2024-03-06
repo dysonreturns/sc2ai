@@ -49,7 +49,9 @@ The **most common** method is selecting one near a specific position or building
 For thís method we have `geo.build_placement_near` (which uses `geo.build_coordinates` internally), but also takes a **target** location.  
 This allows us to essentially ask the library, "Give me a build location, spaced L units apart, nearest to a position/building.".
 
-If we have a location, all we have to do is perform the `build` action on our worker with the desired unit type and target. 
+**Get to work!**  
+If we have a location, all we have to do is perform the `build` action on our worker with the desired unit type and target, like this:  
+`worker_unit.build(unit_type_id: ..., target: ...)`
 
 The full example using `geo.build_placement_near` with a `target` of our main base, looks as follows:
 ```ruby
