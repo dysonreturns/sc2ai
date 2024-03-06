@@ -63,8 +63,8 @@ module Sc2
       #   # Draws a box on structure placement grid
       #   debug_draw_box(point: unit.pos, radius: unit.footprint_radius)
       #
-      # Note: Api::Color RGB is broken for this command. Will use min(r,b)
-      # Note: Z index is elevated 0.01 so the line is visible and doesn't clip through terrain
+      # @note Api::Color RGB is broken for this command. Will use min(r,b)
+      # @note Z index is elevated 0.02 so the line is visible and doesn't clip through terrain
       # @param point [Api::Point]
       # @param radius [Float] default one tile wide, 1.0
       # @param color [Api::Color] default white. min(r,b) is used for both r&b

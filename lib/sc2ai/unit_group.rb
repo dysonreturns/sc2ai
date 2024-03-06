@@ -89,6 +89,12 @@ module Sc2
       @units[tags.at(index)]
     end
 
+    # Meta documentation methods
+    # @!method first
+    #   @return [Api::Unit]
+    # @!method last
+    #   @return [Api::Unit]
+
     # Calls the given block with each Api::Unit value
     # @example
     #   unit_group.each {|unit| puts unit.tag } #=> 1234 ...

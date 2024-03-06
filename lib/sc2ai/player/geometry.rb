@@ -7,7 +7,7 @@ module Sc2
   class Player
     # Holds map and geography helper functions
     class Geometry
-      # @!attribute Holds the parent bot object
+      # @!attribute bot
       #   @return [Sc2::Player] player with active connection
       attr_accessor :bot
 
@@ -72,6 +72,7 @@ module Sc2
       # Each value in [row][column] holds a boolean value represented as an integer
       # It does not say whether a position is occupied by another building.
       # One pixel covers one whole block. Rounds fractionated positions down.
+      # @return [Numo::Bit]
       def parsed_placement_grid
         if @parsed_placement_grid.nil?
           image_data = bot.game_info.start_raw.placement_grid
@@ -83,6 +84,7 @@ module Sc2
       end
 
       # Returns a grid where ony the expo locations are marked
+      # @return [Numo::Bit]
       def expo_placement_grid
         if @expo_placement_grid.nil?
           @expo_placement_grid = Numo::Bit.zeros(map_height, map_width)
@@ -97,6 +99,7 @@ module Sc2
       end
 
       # Returns a grid where powered locations are marked true
+      # @return [Numo::Bit]
       def parsed_power_grid
         # Cache for based on power unit tags
         cache_key = bot.power_sources.map(&:tag).sort.hash
@@ -402,9 +405,9 @@ module Sc2
       # Gets expos and surrounding minerals
       # The index is a build location for an expo and the value is a UnitGroup, which has minerals and geysers
       # @example
-      #   random_expo = expansions.keys.sample #=> Point2D
+      #   random_expo = geo.expansions.keys.sample #=> Point2D
       #   expo_resources = geo.expansions[random_expo] #=> UnitGroup
-      #   alive_minerals = expo_resources.minerals - neutral.minerals
+      #   alive_minerals = expo_resources.minerals & neutral.minerals
       #   geysers = expo_resources.geysers
       # @return [Hash<Api::Point2D, UnitGroup>] Location => UnitGroup of resources (minerals+geysers)
       def expansions
@@ -520,7 +523,8 @@ module Sc2
       # Uses pathing grid internally, to ignore taken positions
       # Does not query the api and is generally fast.
       # @param length [Integer] length of the building, 2 for depot/pylon, 3 for rax/gate
-      # @param on_creep [Boolean] whether this build locatin should be on creep
+      # @param on_creep [Boolean] whether this build location should be on creep
+      # @return [Array<Array<(Float, Float)>>] Array of [x,y] tuples
       def build_coordinates(length:, on_creep: false, in_power: false)
         length = 1 if length < 1
         @_build_coordinates ||= {}
