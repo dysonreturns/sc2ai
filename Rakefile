@@ -7,4 +7,6 @@ RSpec::Core::RakeTask.new(:spec)
 
 require "standard/rake"
 
+require_relative "tasks/gensig"
+
 task default: %w[spec standard:fix]

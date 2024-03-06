@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").select do |f|
       (File.expand_path(f) == __FILE__) ||
-        %r{\A(?:lib|data|exe)/}.match?(f)
+        %r{\A(?:lib|data|exe|sig)/}.match?(f)
     end
   end
 
@@ -32,21 +32,21 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   # Live dependencies ---
-  spec.add_dependency "async", "2.6.5"
+  spec.add_dependency "async", "~> 2.6.5"
   # Sc2::Connection
-  spec.add_dependency "async-websocket", "0.26.0"
-  spec.add_dependency "google-protobuf", "3.25.1"
+  spec.add_dependency "async-websocket", "~> 0.26.0"
+  spec.add_dependency "google-protobuf", "~> 3.25.3"
   # Sc2::Client / Controller
-  spec.add_dependency "async-process", "1.3.1"
+  spec.add_dependency "async-process", "~> 1.3.1"
   # Cli
-  spec.add_dependency "thor", "1.3.0"
+  spec.add_dependency "thor", "~> 1.3.0"
 
   # Geometry
-  spec.add_dependency "perfect-shape", "1.0.8"
+  spec.add_dependency "perfect-shape", "~> 1.0.8"
 
-  spec.add_dependency "numo-narray", "0.9.2.1"
-  spec.add_dependency "numo-linalg", "0.1.7"
-  spec.add_dependency "rumale", "0.28.1"
+  spec.add_dependency "numo-narray", "~> 0.9.2.1"
+  spec.add_dependency "numo-linalg", "~> 0.1.7"
+  spec.add_dependency "rumale", "~> 0.28.1"
 
   # TODO: Find a way to not depend on a patched gem and yank this
   spec.add_dependency "sc2ai-kdtree", "~> 0.4"
@@ -64,6 +64,11 @@ Gem::Specification.new do |spec|
   # Doc
   spec.add_development_dependency "yard", "~> 0.9"
   spec.add_development_dependency "webrick", "~> 1.8"
+  # Sig
+  spec.add_development_dependency "sord"
+  #spec.add_development_dependency "rbs_protobuf", "~> 1.2"
+  #spec.add_development_dependency "protobuf", "~> 3.10" # _only_ required for signatures
+
   # Linting
   # spec.add_development_dependency "fasterer" # no 3.3 support yet
   spec.add_development_dependency "standard", "~> 1.33"
