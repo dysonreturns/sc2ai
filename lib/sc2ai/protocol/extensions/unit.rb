@@ -183,7 +183,7 @@ module Api
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def move(target:, queue_command: false)
-      action(ability_id: Api::AbilityId::MOVE, target: target, queue_command:)
+      action(ability_id: Api::AbilityId::MOVE, target:, queue_command:)
     end
 
     # Shorthand for performing action STOP
@@ -198,7 +198,6 @@ module Api
       action(ability_id: Api::AbilityId::HOLDPOSITION, queue_command:)
     end
     alias_method :hold_position, :hold
-
 
     # Shorthand for performing action ATTACK
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D

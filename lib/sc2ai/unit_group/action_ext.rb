@@ -46,7 +46,7 @@ module Sc2
     # @param queue_command [Boolean] shift+command
     def warp(unit_type_id:, target: nil, queue_command: false)
       return if size.zero?
-      bot&.warp(units: self, unit_type_id:, target: target, queue_command:)
+      bot&.warp(units: self, unit_type_id:, target:, queue_command:)
     end
 
     # Shorthand for performing action SMART (right-click)
@@ -60,7 +60,7 @@ module Sc2
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def move(target:, queue_command: false)
-      action(ability_id: Api::AbilityId::MOVE, target: target, queue_command:)
+      action(ability_id: Api::AbilityId::MOVE, target:, queue_command:)
     end
 
     # Shorthand for performing action STOP
@@ -80,7 +80,7 @@ module Sc2
     # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
     # @param queue_command [Boolean] shift+command
     def attack(target:, queue_command: false)
-      action(ability_id: Api::AbilityId::ATTACK, target: target, queue_command:)
+      action(ability_id: Api::AbilityId::ATTACK, target:, queue_command:)
     end
 
     # Issues repair command on target
