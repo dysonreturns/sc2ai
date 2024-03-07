@@ -3271,9 +3271,7 @@ module Sc2
     def slice: () -> Sc2::UnitGroup
 
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
-    # 
-    # _@return_ — []
-    def sample: () -> untyped
+    def sample: () -> Api::Unit
 
     # Returns an array of unit tags
     # 
@@ -3331,6 +3329,26 @@ module Sc2
     # 
     # _@param_ `queue_command` — shift+command
     def smart: (?target: (Api::Unit | Integer | Api::Point2D)?, ?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action MOVE
+    # 
+    # _@param_ `target` — is a unit, unit tag or a Api::Point2D
+    # 
+    # _@param_ `queue_command` — shift+command
+    def move: (target: (Api::Unit | Integer | Api::Point2D), ?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action STOP
+    # 
+    # _@param_ `queue_command` — shift+command
+    def stop: (?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action HOLDPOSITION
+    # 
+    # _@param_ `queue_command` — shift+command
+    def hold: (?queue_command: bool) -> untyped
 
     # sord omit - no YARD return type given, using untyped
     # Shorthand for performing action ATTACK
@@ -8640,6 +8658,26 @@ module Api
     def smart: (?target: (Api::Unit | Integer | Api::Point2D)?, ?queue_command: bool) -> untyped
 
     # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action MOVE
+    # 
+    # _@param_ `target` — is a unit, unit tag or a Api::Point2D
+    # 
+    # _@param_ `queue_command` — shift+command
+    def move: (target: (Api::Unit | Integer | Api::Point2D), ?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action STOP
+    # 
+    # _@param_ `queue_command` — shift+command
+    def stop: (?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action HOLDPOSITION
+    # 
+    # _@param_ `queue_command` — shift+command
+    def hold: (?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
     # Shorthand for performing action ATTACK
     # 
     # _@param_ `target` — is a unit, unit tag or a Api::Point2D
@@ -9656,6 +9694,26 @@ module Api
     # 
     # _@param_ `queue_command` — shift+command
     def smart: (?target: (Api::Unit | Integer | Api::Point2D)?, ?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action MOVE
+    # 
+    # _@param_ `target` — is a unit, unit tag or a Api::Point2D
+    # 
+    # _@param_ `queue_command` — shift+command
+    def move: (target: (Api::Unit | Integer | Api::Point2D), ?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action STOP
+    # 
+    # _@param_ `queue_command` — shift+command
+    def stop: (?queue_command: bool) -> untyped
+
+    # sord omit - no YARD return type given, using untyped
+    # Shorthand for performing action HOLDPOSITION
+    # 
+    # _@param_ `queue_command` — shift+command
+    def hold: (?queue_command: bool) -> untyped
 
     # sord omit - no YARD return type given, using untyped
     # Shorthand for performing action ATTACK

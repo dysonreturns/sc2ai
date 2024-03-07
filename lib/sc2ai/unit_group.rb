@@ -235,7 +235,7 @@ module Sc2
     end
 
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
-    # @return []
+    # @return [Api::Unit]
     def sample(...)
       @units.values.sample(...)
     end
