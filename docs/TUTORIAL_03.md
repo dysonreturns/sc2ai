@@ -81,7 +81,7 @@ end
 Success! We add supply and can theoretically max out all the way to the 200 hard limit.  
 The method `geo.build_placement_near` also ensures that the tiles are powered for Protoss and on creep for Zerg. Nifty.  
 
-In a perfect world, we're set, but things aren't always perfect..
+In a perfect world, we're set, but things aren't always perfect...
 
 ### Robustness in Randomness
 
@@ -104,7 +104,8 @@ A bit of randomness can help your bot recover from unexpected situations. A good
 It might be helpful for you to run this example and see it's output: <a href="https://github.com/dysonreturns/sc2ai/blob/main/docs/examples/03_terran_building.rb">03_terran_building.rb</a>  
 </div></div>
 
-But wait... our builders are standing idle after building depots. Let's learn to queue actions, so we can send them back to work once they are done.
+But wait... our builders are standing idle after building depots. 
+Let's learn to queue actions, so we can send them back to work once they are done.
 
 ---
 

@@ -30,7 +30,7 @@ end
 
 Sc2::Match.new(
   players: [
-    ExampleTerran.new(name: "ExampleTerran", race: :Terran),
+    ExampleTerran.new(name: "ExampleTerran", race: Api::Race::Terran),
     Sc2::Player::Computer.new(name: "CPU", race: Api::Race::Random)
   ],
   map: "SiteDelta512AIE"

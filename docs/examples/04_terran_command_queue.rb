@@ -68,13 +68,18 @@ class ExampleTerran < Sc2::Player::Bot
         can_afford?(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT)
 
       # Pick a random worker
-      builder = units.workers.random
+      builder = units.workers.sample
 
       # Get location near base 3-spaced for out 2x2 structure to prevent blocking ourselves in.
       build_location = geo.build_placement_near(length: 3, target: base, random: 3)
 
       # Tell worker to build at location
       builder.build(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT, target: build_location)
+
+      # 04 - Queue command
+      nearest_mineral = neutral.minerals.nearest_to(pos: build_location)
+      builder.smart(target: nearest_mineral, queue_command: true)
+
     end
   end
 end

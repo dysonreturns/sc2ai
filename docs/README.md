@@ -154,7 +154,7 @@ Additional options which are useful for Linux can be set via {Sc2::Configuration
 Our competitive ladder plays on v4.10, because there's a Linux client at v4.10 which allows us to play headless.  
 The retail game version is way further ahead - currently at v5.0.12 as of this writing.  
   
-No worries, all the latest game updates are backported directly into our AI Edition maps (thanks to one beautiful Zerg).
+No worries, all the latest game updates are backported directly into our AI Edition maps (thanks to community effort).
 You're free to launch SC2 retail right now, as in the [Running your first Match](#label-Running+your+first+Match) section, but you'll **notice you can't control units manually** or move the camera.
 
 To match the competitive ladder and **gain control locally**, lets download and configure the match runner to launch 4.10 - easy.
