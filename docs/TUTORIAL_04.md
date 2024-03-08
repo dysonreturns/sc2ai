@@ -64,9 +64,9 @@ If you have a Position in your hand, use `group.nearest_to(pos: some_position)`.
 If you have a Unit in hand, `some_unit.nearest(units: group)` can read better.  
 
 **Finding more**  
-Also, in both cases you can pass an optional `amount:`, if you need more than just the nearest 1, which will give you a Unit Group instead of a Unit.  
+In both cases you can pass an optional `amount:` if you need more than just the nearest 1. This will give you a Unit Group instead of a Unit.  
 ```ruby
-# For example, an enemy nydus is spotted, so lets gather a squad of 5 units to deal with it 
+# i.e. an enemy nydus is spotted, so lets gather a squad of 5 units to deal with it 
 # both are the same:
 nydus_exterminators = enemy_nydus.nearest(units: units.army, amount: 5) #=> UnitGroup with max 5 units
 nydus_exterminators = units.army.nearest_to(pos: enemy_nydus.pos, amount: 5) #=> UnitGroup with max 5 units
