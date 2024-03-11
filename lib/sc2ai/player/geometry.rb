@@ -549,7 +549,6 @@ module Sc2
         expansions[pos]
       end
 
-
       # Gets buildable point grid for squares of size, i.e. 3 = 3x3 placements
       # Uses pathing grid internally, to ignore taken positions
       # Does not query the api and is generally fast.

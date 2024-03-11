@@ -1928,6 +1928,25 @@ module Sc2
       # ```
       def expansions_unoccupied: () -> (SORD_ERROR_HashApiPoint2D | UnitGroup)
 
+      # Gets minerals for a base or base position
+      # 
+      # _@param_ `base` — base Unit or Position
+      # 
+      # _@return_ — UnitGroup of minerals for the base
+      def minerals_for_base: ((Api::Unit | Sc2::Position) base) -> Sc2::UnitGroup
+
+      # Gets geysers for a base or base position
+      # 
+      # _@param_ `base` — base Unit or Position
+      # 
+      # _@return_ — UnitGroup of geysers for the base
+      def geysers_for_base: ((Api::Unit | Sc2::Position) base) -> Sc2::UnitGroup
+
+      # _@param_ `base` — base Unit or Position
+      # 
+      # _@return_ — UnitGroup of resources (minerals+geysers)
+      def resources_for_base: ((Api::Unit | Sc2::Position) base) -> Sc2::UnitGroup
+
       # sord omit - no YARD type given for "in_power:", using untyped
       # Gets buildable point grid for squares of size, i.e. 3 = 3x3 placements
       # Uses pathing grid internally, to ignore taken positions
@@ -8843,15 +8862,17 @@ module Api
     # ```
     def has_tech_lab: () -> bool
 
+    # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure
-    def build_reactor: () -> void
+    def build_reactor: (?queue_command: untyped) -> void
 
+    # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure
-    def build_tech_lab: () -> void
+    def build_tech_lab: (?queue_command: untyped) -> void
 
     # sord omit - no YARD type given for "abilities", using untyped
     # sord omit - no YARD type given for "target:", using untyped
-    # Reduces repitition in the is_*action*?(target:) methods
+    # Reduces repetition in the is_*action*?(target:) methods
     def is_performing_ability_on_target?: (untyped abilities, ?target: untyped) -> bool
 
     # Every unit gets access back to the bot to allow api access.
@@ -9881,15 +9902,17 @@ module Api
     # ```
     def has_tech_lab: () -> bool
 
+    # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure
-    def build_reactor: () -> void
+    def build_reactor: (?queue_command: untyped) -> void
 
+    # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure
-    def build_tech_lab: () -> void
+    def build_tech_lab: (?queue_command: untyped) -> void
 
     # sord omit - no YARD type given for "abilities", using untyped
     # sord omit - no YARD type given for "target:", using untyped
-    # Reduces repitition in the is_*action*?(target:) methods
+    # Reduces repetition in the is_*action*?(target:) methods
     def is_performing_ability_on_target?: (untyped abilities, ?target: untyped) -> bool
   end
 

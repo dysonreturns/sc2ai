@@ -481,20 +481,24 @@ module Api
 
     # For Terran builds a tech lab add-on on the current structure
     # @return [void]
-    def build_reactor
-      build(unit_type_id: Api::UnitTypeId::REACTOR)
+    def build_reactor(queue_command: false)
+      build(unit_type_id: Api::UnitTypeId::REACTOR, queue_command:)
     end
 
     # For Terran builds a tech lab add-on on the current structure
     # @return [void]
-    def build_tech_lab
-      build(unit_type_id: Api::UnitTypeId::TECHLAB)
+    def build_tech_lab(queue_command: false)
+      build(unit_type_id: Api::UnitTypeId::TECHLAB, queue_command:)
     end
+
+    # GENERAL Convenience functions ---
+
+    # ...
 
     private
 
     # @private
-    # Reduces repitition in the is_*action*?(target:) methods
+    # Reduces repetition in the is_*action*?(target:) methods
     def is_performing_ability_on_target?(abilities, target: nil)
       # Exit if not actioning the ability
       return false unless is_performing_ability?(abilities)
