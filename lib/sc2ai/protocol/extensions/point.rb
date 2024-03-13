@@ -1,6 +1,15 @@
 module Api
   # Adds additional functionality to message object Api::Point
   module PointExtension
+    # @private
+    def hash
+      [x, y, z].hash
+    end
+
+    def eql?(other)
+      self.class == other.class && hash == other.hash
+    end
+
     # Creates a Point2D using x and y
     # @return [Api::Point2D]
     def to_p2d
