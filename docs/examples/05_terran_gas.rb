@@ -13,7 +13,7 @@ class ExampleTerran < Sc2::Player::Bot
   def on_step
     main_base = structures.hq.first
     return if main_base.nil?
-    
+
     # 02 - Construct an SCV
     if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
 
@@ -80,19 +80,27 @@ class ExampleTerran < Sc2::Player::Bot
     end
 
     # Gas saturation checks - only every 2s in-game (32 frames)
-    if game_loop % 32 == 0
+    # Save the game_loop on which we last checked (initially zero)
+    @last_saturation_check ||= 0
 
-      # Loop over completed gasses (don't worry about those under construction)
-      gasses.select(&:is_completed?).each do |gas|
+    # If 32 frames have passed since our last check
+    if game_loop - @last_saturation_check >= 32
+      # Loop over completed gasses
+      gasses.each do |gas|
+        # Only check this gas if it's construction is completed
+        next unless gas.is_completed?
+
         # Move on to the next gas if we are not missing harvesters
-        missing_harvesters = gas.missing_harvesters
-        next if missing_harvesters.zero?
+        next if gas.missing_harvesters.zero?
 
         # From the 5 nearest workers, randomly select the amount needed and send them to gas
         gas.nearest(units: units.workers, amount: 5)
-          .random(missing_harvesters)
+          .random(gas.missing_harvesters)
           .each { |worker| worker.smart(target: gas) }
       end
+
+      # Update check time
+      @last_saturation_check = game_loop
     end
   end
 end
