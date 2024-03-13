@@ -11,17 +11,17 @@ class ExampleTerran < Sc2::Player::Bot
   end
 
   def on_step
-    base = structures.hq.first
+    main_base = structures.hq.first
 
     if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
 
-      workers_in_progress = base.orders.size
+      workers_in_progress = main_base.orders.size
       if workers_in_progress == 0
         # Scenario 1: Queue is empty, lets build
-        base.build(unit_type_id: Api::UnitTypeId::SCV)
-      elsif workers_in_progress == 1 && base.orders.first.progress > 0.9
+        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+      elsif workers_in_progress == 1 && main_base.orders.first.progress > 0.9
         # Scenario 2: Queue has one unit, which is almost completed (== 1.0), so let's start another
-        base.build(unit_type_id: Api::UnitTypeId::SCV)
+        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
       end
 
     end

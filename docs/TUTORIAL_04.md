@@ -80,10 +80,10 @@ Finally, lets review the action we added.
 builder.smart(target: nearest_mineral, queue_command: true)
 ```
 
-We've used a new action method on a Unit, called `smart`, which is what the client calls a right-click.  
-`Api::AbilityId::SMART` does different actions depending on what happens in-game when you right-click. For army units, it might issue an attack command.
+We've used a new action method on a Unit, called `smart`, which is what the client calls a Right-Click.  
+`Api::AbilityId::SMART` does different actions depending on what happens in-game when you Right-Click. For army units, it might issue an attack command.
  
-Below is a list of **common action methods**, which work for bot a Unit and UnitGroup. You'll recognize `build` and `train`.
+Below is a list of **common action methods**, which work for both a Unit and UnitGroup. You'll recognize `build` and `train`.
 
 - `action` - a raw action. every other method pipes through this.
 - `build` / `train`
@@ -106,8 +106,8 @@ You can see it in action if you followed along or by checking out [04_terran_com
 
 ---
 
-Those lost workers are now happily back in the production line and not a mineral wasted.  
-But you can't build machines if you don't have the green. Let's gather some vespene gas.
+Those lost workers are now happily back in the production line and not a mineral wasted.
+But minerals are not everything, let's harvest some vespene gas.  
 
 ---
 

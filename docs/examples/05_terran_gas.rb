@@ -10,16 +10,10 @@ class ExampleTerran < Sc2::Player::Bot
     @step_count = 2
   end
 
-  def on_start
-    # Example printing out of map
-    geo.parsed_placement_grid.reverse.each_over_axis(0) do |row|
-      puts row.to_a.join("")
-    end
-  end
-
   def on_step
     main_base = structures.hq.first
-
+    return if main_base.nil?
+    
     # 02 - Construct an SCV
     if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
 
@@ -35,21 +29,6 @@ class ExampleTerran < Sc2::Player::Bot
     end
 
     # 03 - Construct buildings
-
-    # Print label for main position "^ [x, y]"
-    debug_text_world("^ [#{main_base.pos.x}, #{main_base.pos.y}]", point: main_base.pos)
-
-    # Debug all the points for length 3x3 which are buildable
-    geo.build_coordinates(length: 3).each do |x, y|
-      # To draw in 3d we need a Z-axis, so use the ground height at this point
-      z = geo.terrain_height(x: x, y: y)
-      build_point = Api::Point[x, y, z]
-
-      # Draw box
-      debug_draw_box(point: build_point, radius: 1.5)
-      # Draw label
-      debug_text_world("^ [#{x}, #{y}]", point: build_point)
-    end
 
     # If we've used up 75% of our supply and can afford a depot, lets build one
     space_is_low = common.food_used.to_f / common.food_cap.to_f > 0.75
@@ -68,13 +47,52 @@ class ExampleTerran < Sc2::Player::Bot
         can_afford?(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT)
 
       # Pick a random worker
-      builder = units.workers.random
+      builder = units.workers.sample
 
       # Get location near base 3-spaced for out 2x2 structure to prevent blocking ourselves in.
       build_location = geo.build_placement_near(length: 3, target: main_base, random: 3)
 
       # Tell worker to build at location
       builder.build(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT, target: build_location)
+
+      # 04 - Queue command
+      nearest_mineral = neutral.minerals.nearest_to(pos: build_location)
+      builder.smart(target: nearest_mineral, queue_command: true)
+    end
+
+    # 05 - Gas
+
+    # Get geysers for main
+    geysers_for_main = geo.geysers_for_base(main_base)
+    # Get gas structures for main
+    gasses = geo.gas_for_base(main_base)
+
+    # If we haven't taken as many gasses as there are geysers
+    if gasses.size < geysers_for_main.size
+      # For each geyser...
+      geysers_for_main.each do |geyser|
+        # ensure we can afford a refinery or break the loop
+        break unless can_afford?(unit_type_id: Api::UnitTypeId::REFINERY)
+
+        # and build a refinery on-top of the geyser position
+        units.workers.random.build(unit_type_id: Api::UnitTypeId::REFINERY, target: geyser)
+      end
+    end
+
+    # Gas saturation checks - only every 2s in-game (32 frames)
+    if game_loop % 32 == 0
+
+      # Loop over completed gasses (don't worry about those under construction)
+      gasses.select(&:is_completed?).each do |gas|
+        # Move on to the next gas if we are not missing harvesters
+        missing_harvesters = gas.missing_harvesters
+        next if missing_harvesters.zero?
+
+        # From the 5 nearest workers, randomly select the amount needed and send them to gas
+        gas.nearest(units: units.workers, amount: 5)
+          .random(missing_harvesters)
+          .each { |worker| worker.smart(target: gas) }
+      end
     end
   end
 end

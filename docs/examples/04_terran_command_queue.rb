@@ -18,38 +18,23 @@ class ExampleTerran < Sc2::Player::Bot
   end
 
   def on_step
-    base = structures.hq.first
+    main_base = structures.hq.first
 
     # 02 - Construct an SCV
     if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
 
-      workers_in_progress = base.orders.size
+      workers_in_progress = main_base.orders.size
       if workers_in_progress == 0
         # Scenario 1: Queue is empty, lets build
-        base.build(unit_type_id: Api::UnitTypeId::SCV)
-      elsif workers_in_progress == 1 && base.orders.first.progress > 0.9
+        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+      elsif workers_in_progress == 1 && main_base.orders.first.progress > 0.9
         # Scenario 2: Queue has one unit, which is almost completed (== 1.0), so let's start another
-        base.build(unit_type_id: Api::UnitTypeId::SCV)
+        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
       end
 
     end
 
     # 03 - Construct buildings
-
-    # Print label for main position "^ [x, y]"
-    debug_text_world("^ [#{base.pos.x}, #{base.pos.y}]", point: base.pos)
-
-    # Debug all the points for length 3x3 which are buildable
-    geo.build_coordinates(length: 3).each do |x, y|
-      # To draw in 3d we need a Z-axis, so use the ground height at this point
-      z = geo.terrain_height(x: x, y: y)
-      build_point = Api::Point[x, y, z]
-
-      # Draw box
-      debug_draw_box(point: build_point, radius: 1.5)
-      # Draw label
-      debug_text_world("^ [#{x}, #{y}]", point: build_point)
-    end
 
     # If we've used up 75% of our supply and can afford a depot, lets build one
     space_is_low = common.food_used.to_f / common.food_cap.to_f > 0.75
@@ -71,7 +56,7 @@ class ExampleTerran < Sc2::Player::Bot
       builder = units.workers.sample
 
       # Get location near base 3-spaced for out 2x2 structure to prevent blocking ourselves in.
-      build_location = geo.build_placement_near(length: 3, target: base, random: 3)
+      build_location = geo.build_placement_near(length: 3, target: main_base, random: 3)
 
       # Tell worker to build at location
       builder.build(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT, target: build_location)

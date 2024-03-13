@@ -13,8 +13,8 @@ For Terran, you train a worker from the building you see on screen, the Command 
 
 ```ruby
 def on_step
-  base = structures.hq.first
-  base.build(unit_type_id: Api::UnitTypeId::SCV)
+  main_base = structures.hq.first
+  main_base.build(unit_type_id: Api::UnitTypeId::SCV)
 end
 ```
 
@@ -24,17 +24,17 @@ Aliases include `structures.bases` and `structures.townhalls`, but we prefer `hq
 Since we only have one at the start, `structures.hq.first` selects our main base's Command Centre and assign to to a local variable `base`.  
 On this base, we call the `build` action.
 ```ruby
-base.build(unit_type_id: Api::UnitTypeId::SCV)
+main_base.build(unit_type_id: Api::UnitTypeId::SCV)
 ```
-`build` has an alias of `train`, if `base.train(unit_type_id: Api::UnitTypeId::SCV)` reads better for you.
+`build` has an alias of `train`, if `main_base.train(unit_type_id: Api::UnitTypeId::SCV)` reads better for you.
 
 Unit actions are all actually some form of an Ability being triggered on a Unit, such as MOVE, STOP, ATTACK.
 When calling `build` the library translates the Unit Type Id of SCV into the correct Ability Id for you and calls an action in the background.
 
 These two commands do the same thing:
 ```ruby
-base.build(unit_type_id: Api::UnitTypeId::SCV)
-base.action(ability_id: Api::AbilityId::COMMANDCENTERTRAIN_SCV)
+main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+main_base.action(ability_id: Api::AbilityId::COMMANDCENTERTRAIN_SCV)
 ```
 
 It's recommend to call `action` when performing abilities and `build`/`train` when creating Units, for your own clarity.
@@ -63,10 +63,10 @@ def on_step
   # How many units do we have supply or "food" for.
   supply_available = common.food_cap - common.food_used
   
-  base = structures.hq.first
+  main_base = structures.hq.first
   # Ensure we have enough minerals and enough space for this unit
   if common.minerals > 50 && supply_available > 0
-    base.build(unit_type_id: Api::UnitTypeId::SCV)
+    main_base.build(unit_type_id: Api::UnitTypeId::SCV)
   end
 
 end
@@ -127,7 +127,7 @@ We therefore internally track all you spending of minerals/vespene/supply and yo
 puts common.minerals #=> 100
 can_afford?(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT) #=> true. depots cost 100.
 
-base.build(unit_type_id: Api::UnitTypeId::SCV) # Costs 50. 100 - 50 = 50 remaining
+main_base.build(unit_type_id: Api::UnitTypeId::SCV) # Costs 50. 100 - 50 = 50 remaining
 puts common.minerals #=> still 100
 puts @spent_minerals #=> 50
 
@@ -157,17 +157,17 @@ Let's simplify the previous example with `can_afford?` and also limit the build 
 
 ```ruby
 def on_step
-  base = structures.hq.first
+  main_base = structures.hq.first
   
   if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
     
-    workers_in_progress = base.orders.size
+    workers_in_progress = main_base.orders.size
     if workers_in_progress == 0 
       # Scenario 1: Queue is empty, lets build
-      base.build(unit_type_id: Api::UnitTypeId::SCV)
-    elsif workers_in_progress == 1 && base.orders.first.progress < 0.9
+      main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+    elsif workers_in_progress == 1 && main_base.orders.first.progress < 0.9
       # Scenario 2: Queue has one unit, which is almost completed (== 1.0), so let's start another
-      base.build(unit_type_id: Api::UnitTypeId::SCV)
+      main_base.build(unit_type_id: Api::UnitTypeId::SCV)
     else
       # no operation. don't over-queue.
     end

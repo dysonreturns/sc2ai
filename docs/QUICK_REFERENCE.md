@@ -166,53 +166,55 @@ structures.not.creep_tumors.not.select_type(Api::UnitTypeId::SPINECRAWLER)
 | all_units           | full, unfiltered list of units+structures | F             |
 | effects             | effects such as psi storm, lurker spikes  | F             |
 | neutral.minerals    | mineral patches                           | F             |
-| neutral.gas         | gas geysers                               | F             |
+| neutral.geyser      | gas geysers                               | F             |
 | neutral.watchtowers | Xel'Naga watchtowers                      | F             |
 | neutral.debris      | destructible debris                       | F             |
 
 ### Your Units and Structures
 
-| method                                   | type of Api::Unit's in UnitGroup                     | Fast/Med/Slow |
-|------------------------------------------|------------------------------------------------------|---------------|
-| structures                               | with attribute :Structure                            | F             |
-| structures.hq                            | Command Centres, PF, Nexus, Hatch, Lair, Hive        | F             |
-| structures.townhalls                     | Command Centres, PF, Nexus, Hatch, Lair, Hive        | F             |
-| structures.bases                         | Command Centres, PF, Nexus, Hatch, Lair, Hive        | F             |
-| structures.creep_tumors                  | Zerg creep tumors (any)                              | F             |
-| structures.creep_tumors_burrowed         | Zerg creep tumors burrowed underground               | F             |
-| structures.pylons / structures.warpables | Protoss pylons                                       | F             |
-| structures.warpgates                     | Protoss warp gates                                   | F             |
-| structures.not.creep_tumors              | all structures excluding creep tumors | F             |
-| units                                    | not attribute :Structure                             | F             |
-| units.workers                            | SCV, Probe, Drone + Burrowed                         | F             |
-| units.larva                              | Zerg larva                                           | F             |
-| units.queens                             | Zerg queen                                           | F             |
-| units.overlords                          | Zerg overlords                                       | F             |
-| units.army                               | units without: workers, queens, overlords, larva     | F             |
-| units.warpables                          | Protoss warp prism                                   | F             |
+| method                                   | type of Api::Unit's in UnitGroup                  | Fast/Med/Slow |
+|------------------------------------------|---------------------------------------------------|---------------|
+| structures                               | with attribute :Structure                         | F             |
+| structures.hq                            | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| structures.townhalls                     | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| structures.bases                         | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| structures.gas                           | gas structures (Refinery, Assimulator, Extractor) | F             |
+| structures.creep_tumors                  | Zerg creep tumors (any)                           | F             |
+| structures.creep_tumors_burrowed         | Zerg creep tumors burrowed underground            | F             |
+| structures.pylons / structures.warpables | Protoss pylons                                    | F             |
+| structures.warpgates                     | Protoss warp gates                                | F             |
+| structures.not.creep_tumors              | all structures excluding creep tumors             | F             |
+| units                                    | not attribute :Structure                          | F             |
+| units.workers                            | SCV, Probe, Drone + Burrowed                      | F             |
+| units.larva                              | Zerg larva                                        | F             |
+| units.queens                             | Zerg queen                                        | F             |
+| units.overlords                          | Zerg overlords                                    | F             |
+| units.army                               | units without: workers, queens, overlords, larva  | F             |
+| units.warpables                          | Protoss warp prism                                | F             |
 
 ### Enemy units
 Same as Bot's `unit` and `structures` template, but prefixed with `enemy.`
 
-| method                                         | type of Api::Unit's in UnitGroup                 | Fast/Med/Slow |
-|------------------------------------------------|--------------------------------------------------|---------------|
-| enemy.all_units                                | enemy only, all units+structures                 | F             |
-| enemy.structures                               | with attribute :Structure                        | F             |
-| enemy.structures.hq                            | Command Centres, PF, Nexus, Hatch, Lair, Hive    | F             |
-| enemy.structures.townhalls                     | Command Centres, PF, Nexus, Hatch, Lair, Hive    | F             |
-| enemy.structures.bases                         | Command Centres, PF, Nexus, Hatch, Lair, Hive    | F             |
-| enemy.structures.creep_tumors                  | Zerg creep tumors (any)                          | F             |
-| enemy.structures.creep_tumors_burrowed         | Zerg creep tumors burrowed underground           | F             |
-| enemy.structures.pylons / structures.warpables | Protoss pylons                                   | F             |
-| enemy.structures.warpgates                     | Protoss warp gates                               | F             |
-| enemy.units                                    | not attribute :Structure                         | F             |
-| enemy.units.workers                            | SCV, Probe, Drone + Burrowed                     | F             |
-| enemy.units.larva                              | Zerg larva                                       | F             |
-| enemy.units.queens                             | Zerg queen                                       | F             |
-| enemy.units.overlords                          | Zerg overlords                                   | F             |
-| enemy.units.army                               | units without: workers, queens, overlords, larva | F             |
-| enemy.structures.not.creep_tumors              | all structures excluding creep tumors            | F             |
-| enemy.units.warpables                          | Protoss warp prism                               | F             |
+| method                                         | type of Api::Unit's in UnitGroup                  | Fast/Med/Slow |
+|------------------------------------------------|---------------------------------------------------|---------------|
+| enemy.all_units                                | enemy only, all units+structures                  | F             |
+| enemy.structures                               | with attribute :Structure                         | F             |
+| enemy.structures.hq                            | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| enemy.structures.townhalls                     | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| enemy.structures.bases                         | Command Centres, PF, Nexus, Hatch, Lair, Hive     | F             |
+| enemy.structures.gas                           | gas structures (Refinery, Assimulator, Extractor) | F             |
+| enemy.structures.creep_tumors                  | Zerg creep tumors (any)                           | F             |
+| enemy.structures.creep_tumors_burrowed         | Zerg creep tumors burrowed underground            | F             |
+| enemy.structures.pylons / structures.warpables | Protoss pylons                                    | F             |
+| enemy.structures.warpgates                     | Protoss warp gates                                | F             |
+| enemy.units                                    | not attribute :Structure                          | F             |
+| enemy.units.workers                            | SCV, Probe, Drone + Burrowed                      | F             |
+| enemy.units.larva                              | Zerg larva                                        | F             |
+| enemy.units.queens                             | Zerg queen                                        | F             |
+| enemy.units.overlords                          | Zerg overlords                                    | F             |
+| enemy.units.army                               | units without: workers, queens, overlords, larva  | F             |
+| enemy.structures.not.creep_tumors              | all structures excluding creep tumors             | F             |
+| enemy.units.warpables                          | Protoss warp prism                                | F             |
 
 ### Unit Group filters
 

@@ -1,7 +1,7 @@
 # TUTORIAL 3
 
 # Terran
-## Structures
+## Structures and placement
 
 Moving ahead without Terran build, it's time to add structures.  
 We already know that we wish to build a supply depot (`Api::UnitTypeId::SUPPLYDEPOT`), but where do we want to build it?  
@@ -25,7 +25,7 @@ We will work in blocks of 3x3 even though the supply depot size is 2x2, to allow
 
 ```ruby
 # Print label for Command Centre position
-debug_text_world("^ [#{base.pos.x}, #{base.pos.y}]", point: base.pos)
+debug_text_world("^ [#{main_base.pos.x}, #{main_base.pos.y}]", point: main_base.pos)
 
 # Debug all the points for length 3x3 which are buildable 
 geo.build_coordinates(length: 3).each do |x, y|
@@ -70,7 +70,7 @@ def on_step
     builder = units.workers.random
     
     # Get location near base 3-spaced for out 2x2 structure to prevent blocking ourselves in.
-    build_location = geo.build_placement_near(length: 3, target: base)
+    build_location = geo.build_placement_near(length: 3, target: main_base)
     
     # Tell worker to build at location
     builder.build(unit_type_id: Api::UnitTypeId::SUPPLYDEPOT, target: build_location)
@@ -91,7 +91,7 @@ You might not be able to immediately resolve the issue, but we can be a bit more
 By default, `build_placement_near` returns the point nearest to the requested `target:`, but `build_placement_near` also has an optional `random:` parameter.  
 What this `random:` does, is fetch the nearest N placements and then randomly selects one of them.
 ```ruby 
-build_location = geo.build_placement_near(length: 3, target: base, random: 3)
+build_location = geo.build_placement_near(length: 3, target: main_base, random: 3)
 ``` 
 The above example chooses a build location from the 3 nearest suitable placement blocks near your main base.   
 If one of them is blocked, you can potentially unblock yourself on the next attempt.   
