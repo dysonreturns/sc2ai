@@ -1,4 +1,5 @@
---template-path=./docs/template
+--template-path ./docs/template
+--load ./docs/yard_configuration.rb
 --protected
 --no-private
 --embed-mixin=ClassMethods

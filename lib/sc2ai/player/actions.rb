@@ -17,7 +17,7 @@ module Sc2
       # Queues a Api::ActionRaw. Perform ability on unit_tags optionally on target_world_space_pos/target_unit_tag
       # @param unit_tags [Array<Integer>]
       # @param ability_id [Integer]
-      # @param queue_command [Boolean] Shift+Click, default: false
+      # @param queue_command [Boolean] shift+command
       # @param target_world_space_pos [Api::Point2D]
       # @param target_unit_tag [Integer]
       def action_raw_unit_command(unit_tags:, ability_id:, queue_command: false, target_world_space_pos: nil, target_unit_tag: nil)
@@ -39,7 +39,7 @@ module Sc2
       # @param units [Array<Integer>,Integer,Api::Unit] can be an Api::Unit, array of Api::Unit#tag or single tag
       # @param ability_id [Integer]
       # @param target [Api::Unit, Integer, Api::Point2D] is a unit, unit tag or a Api::Point2D
-      # @param queue_command [Boolean] Shift+Click, default: false
+      # @param queue_command [Boolean] shift+command
       def action(units:, ability_id:, target: nil, queue_command: false)
         unit_tags = unit_tags_from_source(units)
 
@@ -79,6 +79,7 @@ module Sc2
       # Warps in unit type at target (location or pylon) with optional source units (warp gates)
       # When not specifying the specific warp gate(s), all warpgates will be used
       # @param unit_type_id [Integer] Api::UnitTypeId the unit type which will do the creation
+      # @param queue_command [Boolean] shift+command
       # @param target [Api::Point2D, Integer] is a unit tag or a Api::Point2D
       def warp(unit_type_id:, target:, queue_command:, units: nil)
         warp_ability = Api::TechTree.unit_type_creation_abilities(
@@ -128,7 +129,7 @@ module Sc2
       # @param ability_id [Api::AbilityId]
       # @param target_screen_coord [Api::Point2I]
       # @param target_minimap_coord [Api::Point2I]
-      # @param queue_command [Boolean] Shift+Click, default: false
+      # @param queue_command [Boolean] shift+command
       # @return [void]
       def action_spatial_unit_command(ability_id:, target_screen_coord: nil, target_minimap_coord: nil, queue_command: false)
         queue_action Api::Action.new(
