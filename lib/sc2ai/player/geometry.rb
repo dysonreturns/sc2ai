@@ -523,7 +523,9 @@ module Sc2
       # @param base [Api::Unit, Sc2::Position] base Unit or Position
       # @return [Sc2::UnitGroup] UnitGroup of minerals for the base
       def minerals_for_base(base)
-        resources_for_base(base).minerals
+        # resources_for_base contains what we need, but slice neutral.minerals,
+        # so that only active patches remain
+        bot.neutral.minerals.slice(*resources_for_base(base).minerals.tags)
       end
 
       # Gets geysers for a base or base position
@@ -546,7 +548,26 @@ module Sc2
 
         # Tolerance for misplaced base: Find the nearest base to this position
         pos = expansion_points.min_by { |p| p.distance_to(pos) }
+
         expansions[pos]
+      end
+
+      # Gets gasses for a base or base position
+      # @param base [Api::Unit, Sc2::Position] base Unit or Position
+      # @return [Sc2::UnitGroup] UnitGroup of geysers for the base
+      def gas_for_base(base)
+        # No gas structures at all yet, return nothing
+        return UnitGroup.new if bot.structures.gas.size.zero?
+
+        geysers = geysers_for_base(base)
+
+        # Mineral-only base, return nothing
+        return UnitGroup.new if geysers.size == 0
+
+        # Loop and collect gasses places exactly on-top of geysers
+        bot.structures.gas.select do |gas|
+          geysers.any? { |geyser| geyser.pos.to_p2d.eql?(gas.pos.to_p2d) }
+        end
       end
 
       # Gets buildable point grid for squares of size, i.e. 3 = 3x3 placements
