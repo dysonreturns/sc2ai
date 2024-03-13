@@ -771,7 +771,7 @@ module Sc2
       # 
       # _@param_ `ability_id`
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       # 
       # _@param_ `target_world_space_pos`
       # 
@@ -794,7 +794,7 @@ module Sc2
       # 
       # _@param_ `target` — is a unit, unit tag or a Api::Point2D
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       def action: (
                     units: (::Array[Integer] | Integer | Api::Unit),
                     ability_id: Integer,
@@ -818,7 +818,6 @@ module Sc2
                    ?queue_command: bool
                  ) -> untyped
 
-      # sord omit - no YARD type given for "queue_command:", using untyped
       # sord omit - no YARD type given for "units:", using untyped
       # sord omit - no YARD return type given, using untyped
       # Warps in unit type at target (location or pylon) with optional source units (warp gates)
@@ -826,11 +825,13 @@ module Sc2
       # 
       # _@param_ `unit_type_id` — Api::UnitTypeId the unit type which will do the creation
       # 
+      # _@param_ `queue_command` — shift+command
+      # 
       # _@param_ `target` — is a unit tag or a Api::Point2D
       def warp: (
                   unit_type_id: Integer,
                   target: (Api::Point2D | Integer),
-                  queue_command: untyped,
+                  queue_command: bool,
                   ?units: untyped
                 ) -> untyped
 
@@ -856,7 +857,7 @@ module Sc2
       # 
       # _@param_ `target_minimap_coord`
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       def action_spatial_unit_command: (
                                          ability_id: Api::AbilityId,
                                          ?target_screen_coord: Api::Point2I?,
@@ -1508,7 +1509,7 @@ module Sc2
       # 
       # _@param_ `ability_id`
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       # 
       # _@param_ `target_world_space_pos`
       # 
@@ -1531,7 +1532,7 @@ module Sc2
       # 
       # _@param_ `target` — is a unit, unit tag or a Api::Point2D
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       def action: (
                     units: (::Array[Integer] | Integer | Api::Unit),
                     ability_id: Integer,
@@ -1555,7 +1556,6 @@ module Sc2
                    ?queue_command: bool
                  ) -> untyped
 
-      # sord omit - no YARD type given for "queue_command:", using untyped
       # sord omit - no YARD type given for "units:", using untyped
       # sord omit - no YARD return type given, using untyped
       # Warps in unit type at target (location or pylon) with optional source units (warp gates)
@@ -1563,11 +1563,13 @@ module Sc2
       # 
       # _@param_ `unit_type_id` — Api::UnitTypeId the unit type which will do the creation
       # 
+      # _@param_ `queue_command` — shift+command
+      # 
       # _@param_ `target` — is a unit tag or a Api::Point2D
       def warp: (
                   unit_type_id: Integer,
                   target: (Api::Point2D | Integer),
-                  queue_command: untyped,
+                  queue_command: bool,
                   ?units: untyped
                 ) -> untyped
 
@@ -1593,7 +1595,7 @@ module Sc2
       # 
       # _@param_ `target_minimap_coord`
       # 
-      # _@param_ `queue_command` — Shift+Click, default: false
+      # _@param_ `queue_command` — shift+command
       def action_spatial_unit_command: (
                                          ability_id: Api::AbilityId,
                                          ?target_screen_coord: Api::Point2I?,
@@ -1946,6 +1948,13 @@ module Sc2
       # 
       # _@return_ — UnitGroup of resources (minerals+geysers)
       def resources_for_base: ((Api::Unit | Sc2::Position) base) -> Sc2::UnitGroup
+
+      # Gets gasses for a base or base position
+      # 
+      # _@param_ `base` — base Unit or Position
+      # 
+      # _@return_ — UnitGroup of geysers for the base
+      def gas_for_base: ((Api::Unit | Sc2::Position) base) -> Sc2::UnitGroup
 
       # sord omit - no YARD type given for "in_power:", using untyped
       # Gets buildable point grid for squares of size, i.e. 3 = 3x3 placements
@@ -8729,6 +8738,7 @@ module Api
     def repair: (target: (Api::Unit | Integer), ?queue_command: untyped) -> untyped
 
     # Draws a placement outline
+    # noinspection RubyArgCount
     # 
     # _@param_ `color` — optional api color, default white
     def debug_draw_placement: (?Api::Color? color) -> void
@@ -8923,6 +8933,12 @@ module Api
 
   # Adds additional functionality to message object Api::Point
   module PointExtension
+    # sord omit - no YARD return type given, using untyped
+    def hash: () -> untyped
+
+    # sord omit - no YARD type given for "other", using untyped
+    def eql?: (untyped other) -> bool
+
     # Creates a Point2D using x and y
     def to_p2d: () -> Api::Point2D
 
@@ -8978,6 +8994,12 @@ module Api
     # Api::Point[1,2,3] # Where x is 1.0, y is 2.0 and z is 3.0
     # ```
     def self.[]: (Float x, Float y, Float z) -> Api::Point
+
+    # sord omit - no YARD return type given, using untyped
+    def hash: () -> untyped
+
+    # sord omit - no YARD type given for "other", using untyped
+    def eql?: (untyped other) -> bool
 
     # Creates a Point2D using x and y
     def to_p2d: () -> Api::Point2D
@@ -9769,6 +9791,7 @@ module Api
     def repair: (target: (Api::Unit | Integer), ?queue_command: untyped) -> untyped
 
     # Draws a placement outline
+    # noinspection RubyArgCount
     # 
     # _@param_ `color` — optional api color, default white
     def debug_draw_placement: (?Api::Color? color) -> void
@@ -10127,7 +10150,6 @@ module Kernel
   # sord omit - no YARD return type given, using untyped
   # Sets $VERBOSE for the duration of the block and back to its original
   # value afterwards.
-  # noinspection RubyGlobalVariableNamingConvention
   def with_warnings: (untyped flag) -> untyped
 
   # sord omit - no YARD type given for "flag", using untyped

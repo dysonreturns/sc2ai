@@ -244,6 +244,7 @@ module Api
     # Draws a placement outline
     # @param color [Api::Color] optional api color, default white
     # @return [void]
+    # noinspection RubyArgCount
     def debug_draw_placement(color = nil)
       # Slightly elevate the Z position so that the line doesn't clip into the terrain at same Z level
       z_elevated = pos.z + 0.01
