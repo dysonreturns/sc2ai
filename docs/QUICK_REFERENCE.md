@@ -288,7 +288,7 @@ Here's an example using Protoss `warp` for five stalkers. We use the unit group 
 ```ruby
 
 def on_step
-  enemy_main = game_info.start_raw.start_locations.first
+  enemy_main = geo.enemy_start_position
 
   if can_afford?(unit_type_id: Api::UnitTypeId::STALKER, quantity: 5)
 

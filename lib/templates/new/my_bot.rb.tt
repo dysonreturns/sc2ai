@@ -10,8 +10,7 @@ class <%= @classname %> < Sc2::Player::Bot
 
   def on_step
     if game_loop == 0
-      enemy_start_pos = game_info.start_raw.start_locations.first
-      units.workers.attack(target: enemy_start_pos)
+      units.workers.attack(target: geo.enemy_start_position)
     end
 
     # If your attack fails, "good game" and exit

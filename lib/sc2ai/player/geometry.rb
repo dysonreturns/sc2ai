@@ -402,6 +402,19 @@ module Sc2
         output_grid
       end
 
+      # Returns own 2d start position as set by initial camera
+      # This differs from position of first base structure
+      # @return [Api::Point2D]
+      def start_position
+        @start_position ||= bot.observation.raw_data.player.camera
+      end
+
+      # Returns the enemy 2d start position
+      # @return [Api::Point2D]
+      def enemy_start_position
+        bot.game_info.start_raw.start_locations.first
+      end
+
       # Gets expos and surrounding minerals
       # The index is a build location for an expo and the value is a UnitGroup, which has minerals and geysers
       # @example
@@ -506,13 +519,14 @@ module Sc2
       end
 
       # Returns a slice of #expansions where a base hasn't been built yet
+      # The has index is a build position and the value is a UnitGroup of resources for the base
       # @example
       #   # Lets find the nearest unoccupied expo
       #   expo_pos = expansions_unoccupied.keys.min { |p2d| p2d.distance_to(structures.hq.first) }
       #   # What minerals/geysers does it have?
       #   puts expansions_unoccupied[expo_pos].minerals # or expansions[expo_pos]... => UnitGroup
       #   puts expansions_unoccupied[expo_pos].geysers # or expansions[expo_pos]... => UnitGroup
-      # @return [Hash<Api::Point2D], UnitGroup] Location => UnitGroup of resources (minerals+geysers)
+      # @return [Hash<Api::Point2D, UnitGroup>] Location => UnitGroup of resources (minerals+geysers)
       def expansions_unoccupied
         taken_bases = bot.structures.hq.map { |hq| hq.pos.to_p2d } + bot.enemy.structures.hq.map { |hq| hq.pos.to_p2d }
         remaining_points = expansion_points - taken_bases

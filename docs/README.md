@@ -194,8 +194,7 @@ require "sc2ai"
 class MyCleverBot < Sc2::Player::Bot
   def on_step
     if game_loop == 0
-      enemy_start_pos = game_info.start_raw.start_locations.first
-      units.workers.attack(target: enemy_start_pos)
+      units.workers.attack(target: geo.enemy_start_position)
     end
 
     # If your attack fails, "good game" and exit
@@ -232,9 +231,9 @@ bundle exec ruby --yjit run_example_match.rb
 
 **The replay** is auto-saved as `replays/autosave-#{botname}.SC2Replay` for casual review.  
 
-If the code scares you, especially that `game_info.start_raw.start_locations.first` part, fear not.   
-The syntax is generally quite friendly while also forcibly teaching you the API.  
-We have some extremely useful tutorials ahead once you're done skimming the next two sections.
+While the code might seem foreign right now, fear not!  
+The syntax is generally quite friendly while also forcibly teaching you the API.    
+We have some extremely useful tutorials ahead once you're done skimming the next two sections.  
 
 ## Competing on the ladder
 
@@ -333,7 +332,7 @@ Or even how is ANY OF THIS possible?
 Let's go through all of the above in byte sized chunks with the tutorials which follows.
 The README is over, but check out [Acknowledgements](#label-Acknowledgements) below which answers one of these questions.
 
-Onwards, {file:docs/QUICK_REFERENCE.md to the tutorials!}
+Onwards, {file:docs/QUICK_REFERENCE.md to the tutorials! ➡️}
 
 ## Development
 

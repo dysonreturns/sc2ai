@@ -490,6 +490,8 @@ module Sc2
     def started
       # Calculate expansions
       geo.expansions
+      # Set our start position base on camera
+      geo.start_position
     end
 
     # Moves emulation ahead and calls back #on_step
