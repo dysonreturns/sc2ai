@@ -453,6 +453,12 @@ module Api
       build_progress == 1.0 # standard:disable Lint/FloatComparison
     end
 
+    # Returns true if build progress is < 100%
+    # @return [Boolean]
+    def in_progress?
+      !is_completed?
+    end
+
     # Convenience functions ---
 
     # TERRAN Convenience functions ---
