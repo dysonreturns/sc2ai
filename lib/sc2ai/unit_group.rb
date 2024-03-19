@@ -83,8 +83,6 @@ module Sc2
     def_delegator :@units, :to_hash # Returns {UnitGroup#units}
     def_delegator :@units, :to_proc # Returns a proc that maps a given key to its value.Returns a proc that maps a given key to its value.
 
-
-
     # Gets the Unit at an index
     # @return [Api::Unit]
     def at(index)
