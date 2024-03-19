@@ -1892,6 +1892,13 @@ module Sc2
       # _@param_ `length` — how many cells to merge, i.e. 3 for finding 3x3 placement
       def divide_grid: (Numo::Bit input_grid, Integer length) -> untyped
 
+      # Returns own 2d start position as set by initial camera
+      # This differs from position of first base structure
+      def start_position: () -> Api::Point2D
+
+      # Returns the enemy 2d start position
+      def enemy_start_position: () -> Api::Point2D
+
       # Gets expos and surrounding minerals
       # The index is a build location for an expo and the value is a UnitGroup, which has minerals and geysers
       # 
@@ -1916,8 +1923,8 @@ module Sc2
       # ```
       def expansion_points: () -> ::Array[Api::Point2D]
 
-      # sord warn - "Hash<Api::Point2D]" does not appear to be a type
       # Returns a slice of #expansions where a base hasn't been built yet
+      # The has index is a build position and the value is a UnitGroup of resources for the base
       # 
       # _@return_ — Location => UnitGroup of resources (minerals+geysers)
       # 
@@ -1928,7 +1935,7 @@ module Sc2
       # puts expansions_unoccupied[expo_pos].minerals # or expansions[expo_pos]... => UnitGroup
       # puts expansions_unoccupied[expo_pos].geysers # or expansions[expo_pos]... => UnitGroup
       # ```
-      def expansions_unoccupied: () -> (SORD_ERROR_HashApiPoint2D | UnitGroup)
+      def expansions_unoccupied: () -> ::Hash[Api::Point2D, UnitGroup]
 
       # Gets minerals for a base or base position
       # 
@@ -3193,6 +3200,16 @@ module Sc2
     # 
     # _@see_ `Hash#to_proc`
     def to_proc: () -> untyped
+
+    # Forwards to hash of #units.
+    # 
+    # _@see_ `Hash#find`
+    def find: () -> Api::Unit
+
+    # Forwards to hash of #units.
+    # 
+    # _@see_ `Hash#detect`
+    def detect: () -> Api::Unit
 
     # sord omit - no YARD type given for "index", using untyped
     # Gets the Unit at an index
