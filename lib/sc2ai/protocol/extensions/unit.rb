@@ -465,7 +465,7 @@ module Api
 
     # Returns whether the structure has a reactor add-on
     # @return [Boolean] if the unit has a reactor attached
-    def has_reactor
+    def has_reactor?
       Sc2::UnitGroup::TYPE_REACTOR.include?(add_on&.unit_type)
     end
 
@@ -476,7 +476,7 @@ module Api
     #   # Get the actual tech-lab with #add_on
     #   sp.add_on.research ...
     # @return [Boolean] if the unit has a tech lab attached
-    def has_tech_lab
+    def has_tech_lab?
       Sc2::UnitGroup::TYPE_TECHLAB.include?(add_on&.unit_type)
     end
 
