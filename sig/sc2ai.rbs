@@ -3201,16 +3201,6 @@ module Sc2
     # _@see_ `Hash#to_proc`
     def to_proc: () -> untyped
 
-    # Forwards to hash of #units.
-    # 
-    # _@see_ `Hash#find`
-    def find: () -> Api::Unit
-
-    # Forwards to hash of #units.
-    # 
-    # _@see_ `Hash#detect`
-    def detect: () -> Api::Unit
-
     # sord omit - no YARD type given for "index", using untyped
     # Gets the Unit at an index
     def at: (untyped index) -> Api::Unit
@@ -3223,26 +3213,22 @@ module Sc2
     # Calls the given block with each Api::Unit value
     # 
     # ```ruby
-    # unit_group.each {|unit| puts unit.tag } #=> 1234 ...
-    # 
     # unit_group.each do |unit|
     #    puts unit.tag #=> 1234 ...
     # end
     # ```
-    def each: () -> untyped
+    def each: () ?{ (Api::Unit unit) -> void } -> untyped
 
     # Calls the given block with each key-value pair
     # 
     # _@return_ — a new unit group with items merged
     # 
     # ```ruby
-    # unit_group.each {|tag, unit| puts "#{tag}: #{unit}"} #=> "12345: #<Api::Unit ...>"
-    # 
-    # unit_group.each do |tag, unit|
+    # unit_group.each_with_tag do |tag, unit|
     #    puts "#{tag}: #{unit}"} #=> "12345: #<Api::Unit ...>"
     # end
     # ```
-    def each_with_tag: () -> self
+    def each_with_tag: () ?{ (Integer tag, Api::Unit unit) -> void } -> self
 
     # Checks whether this group contains a unit.
     # 
@@ -3317,6 +3303,9 @@ module Sc2
 
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
     def sample: () -> Api::Unit
+
+    # Returns the first Unit for which the block returns a truthy value
+    def detect: () -> Api::Unit
 
     # Returns an array of unit tags
     # 
@@ -8867,6 +8856,9 @@ module Api
     # Returns true if build progress is 100%
     def is_completed?: () -> bool
 
+    # Returns true if build progress is < 100%
+    def in_progress?: () -> bool
+
     # Returns the Api::Unit add-on (Reactor/Tech Lab), if present for this structure
     # 
     # _@return_ — the unit if an addon is present or nil if not present
@@ -8875,7 +8867,7 @@ module Api
     # Returns whether the structure has a reactor add-on
     # 
     # _@return_ — if the unit has a reactor attached
-    def has_reactor: () -> bool
+    def has_reactor?: () -> bool
 
     # Returns whether the structure has a tech lab add-on
     # 
@@ -8887,7 +8879,7 @@ module Api
     # # Get the actual tech-lab with #add_on
     # sp.add_on.research ...
     # ```
-    def has_tech_lab: () -> bool
+    def has_tech_lab?: () -> bool
 
     # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure
@@ -9920,6 +9912,9 @@ module Api
     # Returns true if build progress is 100%
     def is_completed?: () -> bool
 
+    # Returns true if build progress is < 100%
+    def in_progress?: () -> bool
+
     # Returns the Api::Unit add-on (Reactor/Tech Lab), if present for this structure
     # 
     # _@return_ — the unit if an addon is present or nil if not present
@@ -9928,7 +9923,7 @@ module Api
     # Returns whether the structure has a reactor add-on
     # 
     # _@return_ — if the unit has a reactor attached
-    def has_reactor: () -> bool
+    def has_reactor?: () -> bool
 
     # Returns whether the structure has a tech lab add-on
     # 
@@ -9940,7 +9935,7 @@ module Api
     # # Get the actual tech-lab with #add_on
     # sp.add_on.research ...
     # ```
-    def has_tech_lab: () -> bool
+    def has_tech_lab?: () -> bool
 
     # sord omit - no YARD type given for "queue_command:", using untyped
     # For Terran builds a tech lab add-on on the current structure

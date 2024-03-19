@@ -83,15 +83,6 @@ module Sc2
     def_delegator :@units, :to_hash # Returns {UnitGroup#units}
     def_delegator :@units, :to_proc # Returns a proc that maps a given key to its value.Returns a proc that maps a given key to its value.
 
-    # Methods which return unit
-    # @!macro [attach] def_delegators
-    #   @!method $2
-    #     Forwards to hash of #units.
-    #     @see Hash#$2
-    #     @return [Api::Unit]
-    def_delegator :@units, :find # Returns an element selected by the block.
-    def_delegator :@units, :detect # Returns an element selected by the block.
-
     # Gets the Unit at an index
     # @return [Api::Unit]
     def at(index)
@@ -106,11 +97,10 @@ module Sc2
 
     # Calls the given block with each Api::Unit value
     # @example
-    #   unit_group.each {|unit| puts unit.tag } #=> 1234 ...
-    #
     #   unit_group.each do |unit|
     #      puts unit.tag #=> 1234 ...
     #   end
+    # @yieldparam unit [Api::Unit]
     def each(&)
       @units.each_value(&)
     end
@@ -118,11 +108,11 @@ module Sc2
     # Calls the given block with each key-value pair
     # @return [self] a new unit group with items merged
     # @example
-    #   unit_group.each {|tag, unit| puts "#{tag}: #{unit}"} #=> "12345: #<Api::Unit ...>"
-    #
-    #   unit_group.each do |tag, unit|
+    #   unit_group.each_with_tag do |tag, unit|
     #      puts "#{tag}: #{unit}"} #=> "12345: #<Api::Unit ...>"
     #   end
+    # @yieldparam tag [Integer]
+    # @yieldparam unit [Api::Unit]
     def each_with_tag(&)
       @units.each(&)
       self
@@ -249,6 +239,13 @@ module Sc2
       @units.values.sample(...)
     end
     alias_method :random, :sample
+
+    # Returns the first Unit for which the block returns a truthy value
+    # @return [Api::Unit]
+    def detect(...)
+      @units.values.find(...)
+    end
+    alias_method :find, :detect
 
     # def select_or(*procs)
     #   result = UnitGroup.new

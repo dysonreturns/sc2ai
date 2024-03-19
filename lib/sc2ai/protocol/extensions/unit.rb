@@ -453,6 +453,12 @@ module Api
       build_progress == 1.0 # standard:disable Lint/FloatComparison
     end
 
+    # Returns true if build progress is < 100%
+    # @return [Boolean]
+    def in_progress?
+      !is_completed?
+    end
+
     # Convenience functions ---
 
     # TERRAN Convenience functions ---
@@ -465,7 +471,7 @@ module Api
 
     # Returns whether the structure has a reactor add-on
     # @return [Boolean] if the unit has a reactor attached
-    def has_reactor
+    def has_reactor?
       Sc2::UnitGroup::TYPE_REACTOR.include?(add_on&.unit_type)
     end
 
@@ -476,20 +482,36 @@ module Api
     #   # Get the actual tech-lab with #add_on
     #   sp.add_on.research ...
     # @return [Boolean] if the unit has a tech lab attached
-    def has_tech_lab
+    def has_tech_lab?
       Sc2::UnitGroup::TYPE_TECHLAB.include?(add_on&.unit_type)
     end
 
     # For Terran builds a tech lab add-on on the current structure
     # @return [void]
     def build_reactor(queue_command: false)
-      build(unit_type_id: Api::UnitTypeId::REACTOR, queue_command:)
+      unit_type_id = case unit_type
+      when Api::UnitTypeId::BARRACKS, Api::UnitTypeId::BARRACKSFLYING
+        Api::UnitTypeId::BARRACKSREACTOR
+      when Api::UnitTypeId::FACTORY, Api::UnitTypeId::FACTORYFLYING
+        Api::UnitTypeId::FACTORYREACTOR
+      when Api::UnitTypeId::STARPORT, Api::UnitTypeId::STARPORTFLYING
+        Api::UnitTypeId::STARPORTREACTOR
+      end
+      build(unit_type_id: unit_type_id, queue_command:)
     end
 
     # For Terran builds a tech lab add-on on the current structure
     # @return [void]
     def build_tech_lab(queue_command: false)
-      build(unit_type_id: Api::UnitTypeId::TECHLAB, queue_command:)
+      unit_type_id = case unit_type
+      when Api::UnitTypeId::BARRACKS, Api::UnitTypeId::BARRACKSFLYING
+        Api::UnitTypeId::BARRACKSTECHLAB
+      when Api::UnitTypeId::FACTORY, Api::UnitTypeId::FACTORYFLYING
+        Api::UnitTypeId::FACTORYTECHLAB
+      when Api::UnitTypeId::STARPORT, Api::UnitTypeId::STARPORTFLYING
+        Api::UnitTypeId::STARPORTTECHLAB
+      end
+      build(unit_type_id: unit_type_id, queue_command:)
     end
 
     # GENERAL Convenience functions ---
