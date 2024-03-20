@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.0.4](https://github.com/dysonreturns/sc2ai/compare/v0.0.3...v0.0.4) (2024-03-20)
+
+
+### Features
+
+* add unit# in_progress to help UG filter shorthand ([e7246c1](https://github.com/dysonreturns/sc2ai/commit/e7246c192239ff9862b7d8211822e13d38cdb79d))
+* add unit#build_reactor and unit#tech_lab's queue_command variables, incase they need to land and then build. ([e5d6e95](https://github.com/dysonreturns/sc2ai/commit/e5d6e955adb9756c1e017bf1121492e471253088))
+* added rbs signature gen with `rake gensig` task. ([a5a36d8](https://github.com/dysonreturns/sc2ai/commit/a5a36d858b7b0a7716b45b654fb11c97ab0cd60f))
+* adding eql? for Api::Point for 3d ([77bceb0](https://github.com/dysonreturns/sc2ai/commit/77bceb09f6045d7efd0d92b22bd834048f93d60a))
+* adding ug #find and #detect with forced sigs ([465183a](https://github.com/dysonreturns/sc2ai/commit/465183a7d3e5de64a048546ee4654e39798c08eb))
+* adds geo.geysers_for_base and geo.minerals_for_base ([afb0e5e](https://github.com/dysonreturns/sc2ai/commit/afb0e5e5ba748d61a40b5834089ada0cea30cbb8))
+* adds two debug text methods ([9285534](https://github.com/dysonreturns/sc2ai/commit/928553408b1236d5027394e115a96a94261d1e50))
+* changing geo#mineral_for_base to only return alive units and adding geo#gas_for_base ([9bb14d2](https://github.com/dysonreturns/sc2ai/commit/9bb14d290996e135cf182544b1e7fc6baffd79de))
+* geo helpers enemy_start_position start_position ([116f29d](https://github.com/dysonreturns/sc2ai/commit/116f29dcd5e32bbd4010240ce797d2c8caef0b8f))
+* modernize gem + lint ([3ad0d9a](https://github.com/dysonreturns/sc2ai/commit/3ad0d9ad40133e222be445abb8ae5f541f5c2b54))
+* more action commands: move, stop, hold ([439ea30](https://github.com/dysonreturns/sc2ai/commit/439ea3022dc88e919b6119ea39eae0677bd65186))
+
+
+### Bug Fixes
+
+* Api::Point[x,y,z] new shorthand fixed. ([9285534](https://github.com/dysonreturns/sc2ai/commit/928553408b1236d5027394e115a96a94261d1e50))
+* debug_draw_box elevation even higher to prevent floor clipping ([9285534](https://github.com/dysonreturns/sc2ai/commit/928553408b1236d5027394e115a96a94261d1e50))
+* find and detect to return unit instead of tag-unit tupple ([b1a2e8b](https://github.com/dysonreturns/sc2ai/commit/b1a2e8b8c7ee9cc2ffc25b7e46159ce10c14658c))
+* step_count hard locked to 1 ([775518f](https://github.com/dysonreturns/sc2ai/commit/775518fda13b7fed1cbd17977ab384a319cd2064))
+* step_count is api-correct name for step_size ([775518f](https://github.com/dysonreturns/sc2ai/commit/775518fda13b7fed1cbd17977ab384a319cd2064))
+* suffix ? to boolean unit checks has_tech_lab? and has_reactor? ([12c47ed](https://github.com/dysonreturns/sc2ai/commit/12c47ed93a3b16d90e80dbf0fd4bc28e7ee219ce))
+* terran build_reactor and build_tech_lab shortcuts doesn't accept generic abilities ([195a620](https://github.com/dysonreturns/sc2ai/commit/195a620ad5c071bb225ef78216840d634f6ebeb3))
+
+
+### Miscellaneous Chores
+
+* release 0.0.4 ([8612452](https://github.com/dysonreturns/sc2ai/commit/86124529e8782db0f60868f00a038ebdd39b237a))
+
 ## [0.0.3](https://github.com/dysonreturns/sc2ai/compare/v0.0.2...v0.0.3) (2024-02-09)
 
 
