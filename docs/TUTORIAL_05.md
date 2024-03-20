@@ -235,13 +235,42 @@ gas.nearest(units: units.workers, amount: 5)
    .each { |worker| worker.smart(target: gas) }
 ```
 
+
+## Enough is enough
+
+You may have noticed that we fill our whole supply with workers. We should leave room for some army units.  
+Using the harvester methods above, we can prevent out main base from over-producing workers.  
+
+Previously, we simply checked if we can afford workers:
+```ruby
+if can_afford?(unit_type_id: Api::UnitTypeId::SCV)
+  #... build SCV
+end
+
+```
+Going forward, only construct new workers if we have `missing_harvesters`.  
+```ruby
+
+if main_base.missing_harvesters > 0 && can_afford?(unit_type_id: Api::UnitTypeId::SCV)
+  # ... build SCV 
+end
+```
+This is not 100% as sometimes:  
+
+- a worker goes off to construct something and
+- the harvester count drops, 
+- which causes a new worker to be added
+- and then the constructor returns to find his position filled,  
+- which over-saturates the base.
+
+But, this code is solid enough enough for most cases and we will distribute workers evenly later.
+
 ---
 
-Now we're cooking with gas. Download and run the full example and see it in action:
+Download and run the full example and see it in action:
 [05_terran_gas.rb](https://github.com/dysonreturns/sc2ai/blob/main/docs/examples/05_terran_gas.rb)
 
-So we have one base up and running, but we're clearly over-saturating on workers per mineral patch. We need more bases.  
-Are you thinking what I'm thinking? Time to take over the map!
+We're ready to arm ourselves. 🚬 Heck, it's about time.
 
 ---
 
