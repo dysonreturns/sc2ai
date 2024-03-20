@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/dysonreturns/sc2ai/compare/v0.0.4...v0.0.4) (2024-03-20)
+
+
+### Miscellaneous Chores
+
+* release 0.0.4 ([d54acf4](https://github.com/dysonreturns/sc2ai/commit/d54acf4eec47787e11741c27379412e6d53cb81d))
+
 ## [0.0.4](https://github.com/dysonreturns/sc2ai/compare/v0.0.3...v0.0.4) (2024-03-20)
 
 
