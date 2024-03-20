@@ -19,10 +19,10 @@ class ExampleTerran < Sc2::Player::Bot
       workers_in_progress = main_base.orders.size
       if workers_in_progress == 0
         # Scenario 1: Queue is empty, lets build
-        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+        main_base.train(unit_type_id: Api::UnitTypeId::SCV)
       elsif workers_in_progress == 1 && main_base.orders.first.progress > 0.9
         # Scenario 2: Queue has one unit, which is almost completed (== 1.0), so let's start another
-        main_base.build(unit_type_id: Api::UnitTypeId::SCV)
+        main_base.train(unit_type_id: Api::UnitTypeId::SCV)
       end
 
     end
@@ -38,7 +38,7 @@ class ExampleTerran < Sc2::Player::Bot
     # Count depots currently under construction
     nr_depots_in_progress = structures
       .select_type(Api::UnitTypeId::SUPPLYDEPOT)
-      .count { |depot| !depot.is_completed? }
+      .count(&:in_progress?)
 
     if space_is_low &&
         supply_can_grow &&
@@ -100,6 +100,69 @@ class ExampleTerran < Sc2::Player::Bot
 
       # Update check time
       @last_saturation_check = game_loop
+    end
+
+    # 06 - Army
+
+    # Build barracks if we have a depot, up to a max of 3 per base
+    barracks = structures.select_type(Api::UnitTypeId::BARRACKS)
+    depots = structures.select_type(Api::UnitTypeId::SUPPLYDEPOT).select(&:is_completed?)
+
+    if depots.size > 0 && barracks.size < 3
+      (3 - barracks.size).times do
+        # ensure we can afford it
+        break unless can_afford?(unit_type_id: Api::UnitTypeId::BARRACKS)
+
+        builder = units.workers.random
+
+        # Use 6-spaced build blocks for a 3x3 structure with a potential a 2x2 add-on and some walking room
+        # 3 + 2 + 1 side-walk square = 6
+        build_location = geo.build_placement_near(length: 6, target: main_base, random: 3)
+        builder.build(unit_type_id: Api::UnitTypeId::BARRACKS, target: build_location)
+        builder.smart(target: geo.minerals_for_base(main_base).random, queue_command: true)
+      end
+    end
+
+    # Build add-ons to completed barracks
+    barracks = barracks.select(&:is_completed?) # only focussing on completed barracks...
+
+    # If we can't find a barracks with a tech lab
+    if barracks.size > 0 && !barracks.find(&:has_tech_lab?)
+      # Build a tech lab
+      barracks.random.build_tech_lab if can_afford?(unit_type_id: Api::UnitTypeId::BARRACKSTECHLAB)
+    else
+      # We have at least one tech lab already, for the rest we add reactors
+
+      # Select without add_on == Reject where add_on present
+      barracks.reject(&:add_on).each do |barrack|
+        break unless can_afford?(unit_type_id: Api::UnitTypeId::REACTOR)
+
+        # Build a reactor
+        barrack.build_reactor
+      end
+    end
+
+    barracks.each do |barrack|
+      # Ensure we have an add-on and that it's completed
+      next unless barrack.add_on&.is_completed?
+
+      # If we have a tech lab, build 1x MARAUDER, if a reactor, then 2x MARINES
+      if barrack.has_tech_lab?
+        unit_type_to_train = Api::UnitTypeId::MARAUDER
+        quantity = 1
+      else
+        unit_type_to_train = Api::UnitTypeId::MARINE
+        quantity = 2
+      end
+
+      # If our orders are empty or near completion...
+      if barrack.orders.size == 0 || barrack.orders.size <= 2 && barrack.orders.any? { |order| order.progress > 0.9 }
+        # Send the train command quantity times.
+        quantity.times do
+          # Note queue_command is true for the reactor, because multiple actions on the same frame overwrite each other.
+          barrack.train(unit_type_id: unit_type_to_train, queue_command: true)
+        end
+      end
     end
   end
 end
