@@ -159,6 +159,8 @@ class ExampleTerran < Sc2::Player::Bot
       if barrack.orders.size == 0 || barrack.orders.size <= 2 && barrack.orders.any? { |order| order.progress > 0.9 }
         # Send the train command quantity times.
         quantity.times do
+          next unless can_afford?(unit_type_id: unit_type_to_train)
+
           # Note queue_command is true for the reactor, because multiple actions on the same frame overwrite each other.
           barrack.train(unit_type_id: unit_type_to_train, queue_command: true)
         end

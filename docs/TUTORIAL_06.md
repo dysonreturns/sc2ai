@@ -2,8 +2,9 @@
 
 # Terran
 
-⚠️ If you know the game well, you can skip the primer and the math and get straight to [building barracks](#label-Building+Barracks).  
-It is important to be methodical as we are still building a system, even if inside a game engine. Tiny lives are at stake! :P    
+⚠️ If you know the game well, you can skip the primer and the math and get straight to [Building Barracks](#label-Building+Barracks).  
+It is important to be methodical as we are still building a system, even if inside a game engine.   
+Tiny lives are at stake! :P    
 The equations below is to help (re)introduce you to theory crafting. First and last time, promise.  
 
 <hr />
@@ -20,7 +21,7 @@ Optimally, unit production is <strong> constant</strong> - providing consistent 
 <br/>
 Three production buildings distinctly produce: 💪Biological, 🦾Mechanical and 🚀Air units.<br/>
 <br/>
-Each building can choose on of two <strong> add-on</strong> structures, which either<br/>
+Each building can choose one of two <strong> add-on</strong> structures, which either<br/>
 - allows two units to be built at once (<strong> Reactor</strong> 2️⃣) or<br/>
 - provides additional tech (<strong> Tech Lab</strong> 🧪).<br/>
 These are mini-structures which attach on the side of the main building.<br/>
@@ -67,19 +68,19 @@ We ignore gas requirements to keep things simple, but in many cases you rather w
     Marauder costs 100M and builds in 21s (googled) 
     Marine costs 50M and builds in 18s (googled)
     
-    Now normalize everything to Minerals per minute:
-    100M / 21s * 60s = 285.714285714285714 Mpm Marauder cost  
-    50M / 18s * 60s = 166.666666666666667 Mpm Marine cost  
+    Now normalize everything to Minerals per minute (Mpm):
+    100M / 21s * 60s = 285.71 Mpm Marauder cost  
+    50M / 18s * 60s = 166.66 Mpm Marine cost  
     
     Subtract our constant Marauder production cost from total income to see remaining income
-    925 - 285.714285714285714 = 639.2857142857143 Mpm income
+    925 - 285.71 = 639.29 Mpm income
 
-    Then divide our Marine cost per minute into that to see how many Marines per minute we can build  
-    639.2857142857143 / 166.666666666666667 =  3.835714285714285 Marines per minute  
+    Then divide the cost of one Marine into our remaining income to see how many we can afford  
+    639.29 / 166.66 =  3.84 Marines  
     
     Therefore our base needs 3x Barracks:  
     1x Barrack with a Tech Lab (builds one Marauder at a time)  
-    2x Barracks with Reactors (builds 2 Marines at a time) = 4 marines per minute
+    2x Barracks with Reactors (builds 2 Marines at a time) = 4 Marines capacity > 3.84
   
 NAPKIN_MATHEMATICS
 ```
@@ -123,7 +124,7 @@ There are no new API concepts here.
   depots = structures.select_type(Api::UnitTypeId::SUPPLYDEPOT).select(&:is_completed?)
 ```
 We select our barracks (initially zero) and _completed_ supply depots.    
-There are many ways to check completion, but use {Api::Unit#is_completed? Unit#is_completed?} in a short-hand `select` for it's brevity.  
+There are many ways to check completion, but here we choose {Api::Unit#is_completed? Unit#is_completed?} in a short-hand `select` for brevity.  
 Any boolean from Unit that doesn't need parameters can be used in this short form (`is_flying?`, `is_mechanical?`, etc.).  
 
 ```ruby
@@ -143,7 +144,7 @@ end
 3 minus our barrack count will tell us how many are missing.  
 For however many are missing, start construction if we can afford it.  
 
-Building is a familiar sequence of code:
+Then, building is a familiar sequence of code:
 ```ruby
 builder = units.workers.random
 
@@ -157,19 +158,20 @@ builder.smart(target: geo.minerals_for_base(main_base).random, queue_command: tr
   
 Send a random worker to build on a 6x6 spaced grid near the main base and then continue mining. 
 
-### 7x7 sim cities 
+### 7x7 cities and build_placement_near 
 
-Barracks are `3x3`, so you'd think it'd need a `4`-spaced building point to allow `1` space for units to walk around (`3+1`).  
-The add-on adds `2x2` to it's shape, though, effectively making it's size `5x5`.
+All Terran army structures are `3x3`, so you'd think it'd need a `4`-spaced building grid, to allow `1` space for units to walk around (`3 + 1 = 4`).  
+The add-on adds `2x2` to it's shape, though, making it `5` units wide.
 
 Therefore,  
-💪Barracks are best spaced `6` squares.   
-🦾Factories which produce massive mechanical units might need `7`.  
-🚀Starports which doesn't really need walking space for it's own units can take up 5 or `6` spaces.  
+💪 Barracks are best spaced `6` squares (1 side-walk).   
+🦾 Factories which produce massive mechanical units might need `7` (2 side-walk).  
+🚀 Starports which doesn't really need walking space for it's own units can take up 5 or `6` spaces.  
 
 The Problem is packing your Barracks too tightly might limit the movement of your Factory units later!
 
-**Universally using 7-spaced grid** for all army building placements takes away all worries of trapping units, but you can run out of space in your main base faster than usual.
+**Universally using 7x7-spaced grid** for all army building placements takes away all worries of trapping units, but you can run out of space in your main base faster than usual.    
+
 
 ### Add-on
 
@@ -184,9 +186,9 @@ if barracks.size > 0 && !barracks.find(&:has_tech_lab?)
   # Build a tech lab
   barracks.random.build_tech_lab if can_afford?(unit_type_id: Api::UnitTypeId::BARRACKSTECHLAB)
 else
-  # We have at least one tech lab already, for the rest we add reactors
+  # For the rest, we add reactors
 
-  # Select without add_on == Reject where add_on present
+  # .select without add_on == same as .reject where add_on is present
   barracks.reject(&:add_on).each do |barrack|
     break unless can_afford?(unit_type_id: Api::UnitTypeId::REACTOR)
 
@@ -211,19 +213,21 @@ end
 #### find a unit
 
 We have done a lot of filters with `select`, which narrows down a group of units, but how about finding a single specific unit?   
-The unit group `find` method returns the first Unit for which the block returns a truthy value (or `nil` if not found).
+Above we used the unit group `find` method. It returns the first Unit for which the block returns a truthy value (or `nil` if not found).
 
 ```ruby
 barrack_with_tech_lab = barracks.find(&:has_tech_lab?) #=> the first barrack where has_tech_lab? is true
 
-# Block syntax for more complex find
+# Use block syntax for more complex finds
 barrack_with_idle_tech_lab = barracks.find do |barrack|
+  
   barrack.has_tech_lab? && !barrack.is_active?
+  
 end  #=> the first barrack which has an idle tech lab
 ```
 
 #### build_tech_lab / build_reactor
-The `#build_tech_lab` ability is simply a helper which executes `#build` with the correctly detected type, i.e. `Api::UnitTypeId::BARRACKSTECHLAB`.  
+The `Unit#build_tech_lab` ability is simply a helper which executes `#build` with the correctly detected type, i.e. `Api::UnitTypeId::BARRACKSTECHLAB`.  
 
 Reactors have a similar method in `#build_reactor`.
 ```ruby
@@ -246,14 +250,19 @@ If you find it clearer, you can remove the short-hand and filter inside such a l
 ```ruby
 barracks.each do |barrack|
   next unless barrack.add_on.nil?
-
-  # ... build a add-on
+  # build add-on...
 end
+
 ```
 
 ### Train an army
 
-All according to plan.
+<div class="docstring">
+<div class="note">
+Reminder: `train` and `build` are aliases of each other, should you prefer to `build` a Marine instead of `train` one.
+</div>
+</div>
+
 
 ```ruby
 
@@ -265,15 +274,17 @@ barracks.each do |barrack|
   if barrack.has_tech_lab?
     unit_type_to_train = Api::UnitTypeId::MARAUDER
     quantity = 1
-  else
+  else # if barrack.has_reactor?
     unit_type_to_train = Api::UnitTypeId::MARINE
     quantity = 2
   end
 
-  # If our orders are empty or near completion...
+  # If our orders are empty or any of our two-or-less orders are near completion...
   if barrack.orders.size == 0 || barrack.orders.size <= 2 && barrack.orders.any? { |order| order.progress > 0.9 }
     # Send the train command quantity times.
     quantity.times do
+      next unless can_afford?(unit_type_id: unit_type_to_train)
+      
       # Note queue_command is true for the reactor, because multiple actions on the same frame overwrite each other.
       barrack.train(unit_type_id: unit_type_to_train, queue_command: true)
     end
@@ -281,30 +292,31 @@ barracks.each do |barrack|
 end
 ```
 
+There are no new methods here, let's just walk over the steps.
 
-Remember that `barracks` are all the completed barracks.  
-We additionally make sure that we have add-ons and that they are completed.
+Remember that `barracks` was filtered down to only the completed structures.  
+For each, we make sure that we have add-ons and that they are completed, because units can not train during their construction.
 
-As from our goals, the Tech Lab barrack builds the heavier Marauder unit (one at a time) and the Reactor barracks build marines (two at a time).
+As from our goals, the Tech Lab barrack builds the heavier Marauder unit (one at a time) and the Reactor barracks build Marines (two at a time).
 
 - We set these in `quantity` and `unit_type_to_train` and then do our usual production limit checks.
-- If the barrack has no orders or has two or less which are nearly done, then...  
+- If the barrack has no orders or some which are nearly done then...  
 - For `quanity` amount of times...  
-- Queue a train command for the unit type id, `unit_type_to_train`.  
+- Queue a train command for the correct unit type id, `unit_type_to_train`.  
 
 
 ![heck_yeah](images/06_train_army.jpg)
 
-And there they are! We did it, we came up with a plan and executed on it!
+And there they are! We did it, we came up with a plan and executed on it.  
+
+You will frequently find "complex" systems translating quite reasonably into code if you take it one step at a time.  
 
 The full example is here if you'd like to run it exactly:  
 [06_terran_army.rb](https://github.com/dysonreturns/sc2ai/blob/main/docs/examples/06_terran_army.rb)
 
 ---
 
-They do look a bit awkward standing next to the barracks like that.  
-Next, let's rally these troops to a defensive position.   
-Then, once we reach critical mass, we'll send them out to attack!
+Next, let's rally these troops to a defensive position and then, once we reach critical mass, we'll send them out to attack.
 
 ---
 
