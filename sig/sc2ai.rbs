@@ -1813,6 +1813,12 @@ module Sc2
       # _@return_ — z axis position between -16 and 16
       def terrain_height: (x: (Float | Integer), y: (Float | Integer)) -> Float
 
+      # sord omit - no YARD type given for "position", using untyped
+      # Returns the terrain height (z) at position x and y for a point
+      # 
+      # _@return_ — z axis position between -16 and 16
+      def terrain_height_for_pos: (untyped position) -> Float
+
       # sord warn - Numo::SFloat wasn't able to be resolved to a constant in this project
       # Returns a parsed terrain_height from bot.game_info.start_raw.
       # Each value in [row][column] holds a float value which is the z height
@@ -3296,13 +3302,13 @@ module Sc2
     # _@return_ — new unit group
     def except: () -> Sc2::UnitGroup
 
-    # Returns a hash containing the entries for given tag(s).
+    # Returns a new unit group containing the entries for given tag(s).
     # 
     # _@return_ — new unit group
     def slice: () -> Sc2::UnitGroup
 
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
-    def sample: () -> Api::Unit
+    def sample: () -> (Api::Unit | Sc2::UnitGroup)
 
     # Returns the first Unit for which the block returns a truthy value
     def detect: () -> Api::Unit
@@ -9151,6 +9157,10 @@ module Api
     # sord omit - no YARD type given for "other", using untyped
     def eql?: (untyped other) -> bool
 
+    # sord omit - no YARD type given for "z:", using untyped
+    # Create a new 3d Point, by adding a y axis.
+    def to_3d: (z: untyped) -> Api::Point
+
     # A new point representing the sum of this point and the other point.
     # 
     # _@param_ `other` — The other point/number to add.
@@ -9974,6 +9984,10 @@ module Api
 
     # sord omit - no YARD type given for "other", using untyped
     def eql?: (untyped other) -> bool
+
+    # sord omit - no YARD type given for "z:", using untyped
+    # Create a new 3d Point, by adding a y axis.
+    def to_3d: (z: untyped) -> Api::Point
 
     # Adds additional functionality to message class Api::Point2D
     module ClassMethods
