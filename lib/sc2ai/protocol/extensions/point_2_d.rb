@@ -10,6 +10,12 @@ module Api
       self.class == other.class && hash == other.hash
     end
 
+    # Create a new 3d Point, by adding a y axis.
+    # @return [Api::Point]
+    def to_3d(z:)
+      Api::Point[x, y, z]
+    end
+
     # Adds additional functionality to message class Api::Point2D
     module ClassMethods
       # Shorthand for creating an instance for [x, y]
