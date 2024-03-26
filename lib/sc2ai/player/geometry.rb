@@ -259,6 +259,12 @@ module Sc2
         parsed_terrain_height[y.to_i, x.to_i]
       end
 
+      # Returns the terrain height (z) at position x and y for a point
+      # @return [Float] z axis position between -16 and 16
+      def terrain_height_for_pos(position)
+        terrain_height(x: position.x, y: position.y)
+      end
+
       # Returns a parsed terrain_height from bot.game_info.start_raw.
       # Each value in [row][column] holds a float value which is the z height
       # @return [Numo::SFloat] Numo array
