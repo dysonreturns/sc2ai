@@ -227,11 +227,19 @@ module Sc2
       UnitGroup.new(@units.except(...))
     end
 
-    # Returns a hash containing the entries for given tag(s).
+    # Returns a new unit group containing the entries for given tag(s).
     # @return [Sc2::UnitGroup] new unit group
     def slice(...)
       UnitGroup.new(@units.slice(...))
     end
+
+    # Returns a new unit group containing each element found both in self and in all of the given other_arrays; duplicates are omitted; items are compared using eql? (items must also implement hash correctly):
+    # @param other_unit_group [UnitGroup]
+    # @return [UnitGroup] new unit group
+    def intersection(other_unit_group)
+      slice(*other_unit_group.tags)
+    end
+    alias_method :&, :intersection
 
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
     # @return [Api::Unit]
