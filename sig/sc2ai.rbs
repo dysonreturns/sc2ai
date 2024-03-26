@@ -3307,8 +3307,15 @@ module Sc2
     # _@return_ — new unit group
     def slice: () -> Sc2::UnitGroup
 
+    # Returns a new unit group containing each element found both in self and in all of the given other_arrays; duplicates are omitted; items are compared using eql? (items must also implement hash correctly):
+    # 
+    # _@param_ `other_unit_group`
+    # 
+    # _@return_ — new unit group
+    def intersection: (UnitGroup other_unit_group) -> UnitGroup
+
     # Selects a single random Unit without a parameter or an array of Units with a param, i.e. self.random(2)
-    def sample: () -> (Api::Unit | Sc2::UnitGroup)
+    def sample: () -> Api::Unit
 
     # Returns the first Unit for which the block returns a truthy value
     def detect: () -> Api::Unit
